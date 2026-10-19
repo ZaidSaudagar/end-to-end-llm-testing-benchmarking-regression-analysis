@@ -186,19 +186,3 @@ print(dataset.source_sha256)
 
 Use `.env` locally for environment variables. Do not commit secrets or real API keys. The repository includes `.env.example` as the safe template.
 
-## Roadmap
-
-- Milestone 1: foundation and GitHub setup
-- Milestone 2: dataset and evaluation core (implemented; needs owner review)
-- Milestone 3: semantic NLP evaluation (implemented; real-model smoke test is opt-in)
-- Milestone 4: provider integration (implemented with mocked tests; no paid calls made)
-- Milestone 5: LLM-as-a-judge (implemented; opt-in, mock-tested, no paid judge calls)
-- Milestone 6: evaluation execution and persistence (implemented; provider calls remain opt-in)
-- Milestone 7: statistics and regression analysis
-- Milestone 8: dashboard completion
-- Milestone 9: reliability and security hardening
-- Milestone 10: release packaging and deployment
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for contributor guidance and repository workflow expectations.
