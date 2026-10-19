@@ -1,0 +1,307 @@
+{
+  "dataset_name": "EvalForge Reference Grounding Tests",
+  "dataset_version": "1.0.0",
+  "description": "Cases assess whether a response stays within supplied reference material and acknowledges missing information. They are project-specific starter cases.",
+  "cases": [
+    {
+      "test_case_id": "GRD-001",
+      "task_category": "reference_grounding",
+      "input_prompt": "What are the library's weekday closing and weekend hours?",
+      "reference_context": "The library extended its weekday hours from 8 a.m.–6 p.m. to 8 a.m.–8 p.m. after students requested more evening study time. Weekend hours did not change.",
+      "reference_answer": "The library opens at 8 a.m. and closes at 8 p.m. on weekdays. Weekend hours are not specified as changed.",
+      "expected_behavior": "The library extended weekday closing time to 8 p.m. Weekend hours did not change.",
+      "evaluation_method": "reference_supported_answer",
+      "difficulty": "medium",
+      "dataset_version": "1.0.0",
+      "tags": [
+        "grounding",
+        "unsupported_claims"
+      ]
+    },
+    {
+      "test_case_id": "GRD-002",
+      "task_category": "reference_grounding",
+      "input_prompt": "What did software version 2.1 change?",
+      "reference_context": "A software team released version 2.1 on Tuesday. It fixes a login bug and improves startup time. The release does not add new user-facing features.",
+      "reference_answer": "It fixed a login bug and improved startup time. It did not add user-facing features.",
+      "expected_behavior": "Version 2.1 fixes a login bug and improves startup time; it adds no new user-facing features.",
+      "evaluation_method": "reference_supported_answer",
+      "difficulty": "medium",
+      "dataset_version": "1.0.0",
+      "tags": [
+        "grounding",
+        "unsupported_claims"
+      ]
+    },
+    {
+      "test_case_id": "GRD-003",
+      "task_category": "reference_grounding",
+      "input_prompt": "What was the employee satisfaction result of the pilot?",
+      "reference_context": "The pilot ran for four weeks across two offices. Ticket resolution time fell by 12%, but employee satisfaction was not measured.",
+      "reference_answer": "Employee satisfaction was not measured.",
+      "expected_behavior": "The source says employee satisfaction was not measured.",
+      "evaluation_method": "reference_supported_answer",
+      "difficulty": "medium",
+      "dataset_version": "1.0.0",
+      "tags": [
+        "grounding",
+        "unsupported_claims"
+      ]
+    },
+    {
+      "test_case_id": "GRD-004",
+      "task_category": "reference_grounding",
+      "input_prompt": "Has the 60,000 AED proposal been approved?",
+      "reference_context": "The proposal requests 50,000 AED for equipment and 10,000 AED for training. Approval is pending, and no spending has started.",
+      "reference_answer": "No. Approval is pending and spending has not started.",
+      "expected_behavior": "The proposal is awaiting approval; no spending has started.",
+      "evaluation_method": "reference_supported_answer",
+      "difficulty": "medium",
+      "dataset_version": "1.0.0",
+      "tags": [
+        "grounding",
+        "unsupported_claims"
+      ]
+    },
+    {
+      "test_case_id": "GRD-005",
+      "task_category": "reference_grounding",
+      "input_prompt": "What is the company's revenue?",
+      "reference_context": "The company launched its product in 2022 and expanded to three regions in 2025. It employs 42 people.",
+      "reference_answer": "The provided reference does not state the company's revenue.",
+      "expected_behavior": "The reference provides no revenue figure.",
+      "evaluation_method": "reference_supported_answer",
+      "difficulty": "medium",
+      "dataset_version": "1.0.0",
+      "tags": [
+        "grounding",
+        "unsupported_claims"
+      ]
+    },
+    {
+      "test_case_id": "GRD-006",
+      "task_category": "reference_grounding",
+      "input_prompt": "How many survey respondents preferred SMS?",
+      "reference_context": "The survey included 240 respondents. Sixty percent preferred email updates, 25% preferred SMS, and 15% preferred phone calls.",
+      "reference_answer": "25% of 240 respondents preferred SMS, which is 60 respondents.",
+      "expected_behavior": "60 respondents preferred SMS.",
+      "evaluation_method": "reference_supported_answer",
+      "difficulty": "medium",
+      "dataset_version": "1.0.0",
+      "tags": [
+        "grounding",
+        "unsupported_claims"
+      ]
+    },
+    {
+      "test_case_id": "GRD-007",
+      "task_category": "reference_grounding",
+      "input_prompt": "What was the failure rate?",
+      "reference_context": "A service recorded 1,000 requests during the reporting period. Of these, 40 requests failed.",
+      "reference_answer": "40 of 1,000 requests failed, giving a 4% failure rate.",
+      "expected_behavior": "The failure rate was 4%.",
+      "evaluation_method": "reference_supported_answer",
+      "difficulty": "medium",
+      "dataset_version": "1.0.0",
+      "tags": [
+        "grounding",
+        "unsupported_claims"
+      ]
+    },
+    {
+      "test_case_id": "GRD-008",
+      "task_category": "reference_grounding",
+      "input_prompt": "What is the exact date of the next product launch?",
+      "reference_context": "The team completed internal testing in May. The release manager said the launch date would be announced later.",
+      "reference_answer": "The reference does not specify a next product launch date.",
+      "expected_behavior": "No next launch date is provided.",
+      "evaluation_method": "reference_supported_answer",
+      "difficulty": "medium",
+      "dataset_version": "1.0.0",
+      "tags": [
+        "grounding",
+        "unsupported_claims"
+      ]
+    },
+    {
+      "test_case_id": "GRD-009",
+      "task_category": "reference_grounding",
+      "input_prompt": "What did the customer say about the delivery?",
+      "reference_context": "Customer note: 'The package arrived two days late, but everything inside was undamaged.'",
+      "reference_answer": "The customer said the package arrived two days late but was undamaged.",
+      "expected_behavior": "Delivery was two days late; the package was undamaged.",
+      "evaluation_method": "reference_supported_answer",
+      "difficulty": "medium",
+      "dataset_version": "1.0.0",
+      "tags": [
+        "grounding",
+        "unsupported_claims"
+      ]
+    },
+    {
+      "test_case_id": "GRD-010",
+      "task_category": "reference_grounding",
+      "input_prompt": "Which database does the application currently use?",
+      "reference_context": "The development configuration uses SQLite. The team intends to support PostgreSQL for production deployments later.",
+      "reference_answer": "SQLite is used for local development; PostgreSQL is planned as a later option.",
+      "expected_behavior": "Local development uses SQLite; PostgreSQL is planned.",
+      "evaluation_method": "reference_supported_answer",
+      "difficulty": "medium",
+      "dataset_version": "1.0.0",
+      "tags": [
+        "grounding",
+        "unsupported_claims"
+      ]
+    },
+    {
+      "test_case_id": "GRD-011",
+      "task_category": "reference_grounding",
+      "input_prompt": "What is the reported model accuracy?",
+      "reference_context": "Model A answered 45 of 50 test cases correctly. No other test results are reported.",
+      "reference_answer": "The report states 90% accuracy on 50 test cases.",
+      "expected_behavior": "Accuracy is 90% on 50 test cases.",
+      "evaluation_method": "reference_supported_answer",
+      "difficulty": "medium",
+      "dataset_version": "1.0.0",
+      "tags": [
+        "grounding",
+        "unsupported_claims"
+      ]
+    },
+    {
+      "test_case_id": "GRD-012",
+      "task_category": "reference_grounding",
+      "input_prompt": "Did the update reduce latency by 30%?",
+      "reference_context": "The update fixed a memory leak. The report does not include before-and-after latency measurements.",
+      "reference_answer": "The reference provides no evidence of a 30% latency reduction.",
+      "expected_behavior": "A 30% latency reduction is not supported by the reference.",
+      "evaluation_method": "reference_supported_answer",
+      "difficulty": "medium",
+      "dataset_version": "1.0.0",
+      "tags": [
+        "grounding",
+        "unsupported_claims"
+      ]
+    },
+    {
+      "test_case_id": "GRD-013",
+      "task_category": "reference_grounding",
+      "input_prompt": "What are the meeting date and time?",
+      "reference_context": "The calendar entry states: Meeting date: 2026-11-03. Start time: 14:30.",
+      "reference_answer": "The meeting is scheduled for 3 November 2026 at 14:30.",
+      "expected_behavior": "The meeting is on 2026-11-03 at 14:30.",
+      "evaluation_method": "reference_supported_answer",
+      "difficulty": "medium",
+      "dataset_version": "1.0.0",
+      "tags": [
+        "grounding",
+        "unsupported_claims"
+      ]
+    },
+    {
+      "test_case_id": "GRD-014",
+      "task_category": "reference_grounding",
+      "input_prompt": "How many offices participated in the pilot?",
+      "reference_context": "The pilot ran for four weeks across two offices. Ticket resolution time fell by 12%.",
+      "reference_answer": "Two offices participated.",
+      "expected_behavior": "The pilot covered two offices.",
+      "evaluation_method": "reference_supported_answer",
+      "difficulty": "medium",
+      "dataset_version": "1.0.0",
+      "tags": [
+        "grounding",
+        "unsupported_claims"
+      ]
+    },
+    {
+      "test_case_id": "GRD-015",
+      "task_category": "reference_grounding",
+      "input_prompt": "What is the warranty duration?",
+      "reference_context": "The product includes a quick-start guide and a USB-C charging cable. Warranty details are provided separately.",
+      "reference_answer": "The reference does not specify a warranty duration.",
+      "expected_behavior": "No warranty duration is given.",
+      "evaluation_method": "reference_supported_answer",
+      "difficulty": "medium",
+      "dataset_version": "1.0.0",
+      "tags": [
+        "grounding",
+        "unsupported_claims"
+      ]
+    },
+    {
+      "test_case_id": "GRD-016",
+      "task_category": "reference_grounding",
+      "input_prompt": "What did the survey say about phone calls?",
+      "reference_context": "The survey included 240 respondents. Sixty percent preferred email updates, 25% preferred SMS, and 15% preferred phone calls.",
+      "reference_answer": "15% of respondents preferred phone calls.",
+      "expected_behavior": "15% preferred phone calls.",
+      "evaluation_method": "reference_supported_answer",
+      "difficulty": "medium",
+      "dataset_version": "1.0.0",
+      "tags": [
+        "grounding",
+        "unsupported_claims"
+      ]
+    },
+    {
+      "test_case_id": "GRD-017",
+      "task_category": "reference_grounding",
+      "input_prompt": "When was the report published and by whom?",
+      "reference_context": "Northwind Labs published the report on 12 March 2025.",
+      "reference_answer": "Northwind Labs published the report on 12 March 2025.",
+      "expected_behavior": "Northwind Labs published it on 12 March 2025.",
+      "evaluation_method": "reference_supported_answer",
+      "difficulty": "medium",
+      "dataset_version": "1.0.0",
+      "tags": [
+        "grounding",
+        "unsupported_claims"
+      ]
+    },
+    {
+      "test_case_id": "GRD-018",
+      "task_category": "reference_grounding",
+      "input_prompt": "Was customer satisfaction higher after the change?",
+      "reference_context": "After the change, average processing time fell from 8 minutes to 6 minutes. No customer satisfaction data was collected.",
+      "reference_answer": "The reference provides no customer-satisfaction measurements.",
+      "expected_behavior": "No conclusion about customer satisfaction can be drawn from the reference.",
+      "evaluation_method": "reference_supported_answer",
+      "difficulty": "medium",
+      "dataset_version": "1.0.0",
+      "tags": [
+        "grounding",
+        "unsupported_claims"
+      ]
+    },
+    {
+      "test_case_id": "GRD-019",
+      "task_category": "reference_grounding",
+      "input_prompt": "What are the stated project budget items?",
+      "reference_context": "The proposal requests 50,000 AED for equipment and 10,000 AED for training.",
+      "reference_answer": "50,000 AED is requested for equipment and 10,000 AED for training, totaling 60,000 AED.",
+      "expected_behavior": "Equipment: 50,000 AED; training: 10,000 AED; total: 60,000 AED.",
+      "evaluation_method": "reference_supported_answer",
+      "difficulty": "medium",
+      "dataset_version": "1.0.0",
+      "tags": [
+        "grounding",
+        "unsupported_claims"
+      ]
+    },
+    {
+      "test_case_id": "GRD-020",
+      "task_category": "reference_grounding",
+      "input_prompt": "Which team owns the incident?",
+      "reference_context": "The incident began at 10:14 UTC and affected report exports. The service was restored at 10:42 UTC.",
+      "reference_answer": "The reference does not identify an owner.",
+      "expected_behavior": "No team owner is identified in the reference.",
+      "evaluation_method": "reference_supported_answer",
+      "difficulty": "medium",
+      "dataset_version": "1.0.0",
+      "tags": [
+        "grounding",
+        "unsupported_claims"
+      ]
+    }
+  ]
+}

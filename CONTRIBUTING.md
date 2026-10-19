@@ -11,10 +11,10 @@
 ## Local development
 
 ```bash
-cd "D:\Projects\End-to-End-LLM-Testing-Benchmarking-and-Regression-Analysis"
+cd "D:\Projects\End to End LLM Testing Benchmarking and Regression Analysis"
 python -m venv .venv
 .venv\Scripts\Activate.ps1
-pip install -r requirements.txt
+pip install -e .
 ```
 
 For this project, dependencies are managed in `pyproject.toml` and installed with pip.

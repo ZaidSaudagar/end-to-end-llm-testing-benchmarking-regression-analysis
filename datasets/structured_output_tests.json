@@ -1,0 +1,684 @@
+{
+  "dataset_name": "EvalForge Structured Output Tests",
+  "dataset_version": "1.0.0",
+  "description": "Owner-authored starter cases for validating JSON structure and required fields. These are project-specific test cases, not an external standardized benchmark.",
+  "cases": [
+    {
+      "test_case_id": "STR-001",
+      "task_category": "structured_output",
+      "input_prompt": "Extract a person's name and age from: 'Maya is 28 years old.'",
+      "expected_output": {
+        "name": "Maya",
+        "age": 28
+      },
+      "expected_output_schema": {
+        "type": "object",
+        "required": [
+          "name",
+          "age"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "age": {
+            "type": "integer"
+          }
+        }
+      },
+      "evaluation_method": "json_schema_validation",
+      "difficulty": "easy",
+      "dataset_version": "1.0.0",
+      "tags": [
+        "json",
+        "schema_validation"
+      ]
+    },
+    {
+      "test_case_id": "STR-002",
+      "task_category": "structured_output",
+      "input_prompt": "Return the three colors mentioned: red, blue, and green.",
+      "expected_output": {
+        "colors": [
+          "red",
+          "blue",
+          "green"
+        ]
+      },
+      "expected_output_schema": {
+        "type": "object",
+        "required": [
+          "colors"
+        ],
+        "properties": {
+          "colors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 3,
+            "maxItems": 3
+          }
+        }
+      },
+      "evaluation_method": "json_schema_validation",
+      "difficulty": "easy",
+      "dataset_version": "1.0.0",
+      "tags": [
+        "json",
+        "schema_validation"
+      ]
+    },
+    {
+      "test_case_id": "STR-003",
+      "task_category": "structured_output",
+      "input_prompt": "Represent the status as pending and the retry count as 2.",
+      "expected_output": {
+        "status": "pending",
+        "retry_count": 2
+      },
+      "expected_output_schema": {
+        "type": "object",
+        "required": [
+          "status",
+          "retry_count"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "complete",
+              "failed"
+            ]
+          },
+          "retry_count": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "evaluation_method": "json_schema_validation",
+      "difficulty": "easy",
+      "dataset_version": "1.0.0",
+      "tags": [
+        "json",
+        "schema_validation"
+      ]
+    },
+    {
+      "test_case_id": "STR-004",
+      "task_category": "structured_output",
+      "input_prompt": "Extract order ID 8472 and total 39.50 AED.",
+      "expected_output": {
+        "order_id": "8472",
+        "total_aed": 39.5
+      },
+      "expected_output_schema": {
+        "type": "object",
+        "required": [
+          "order_id",
+          "total_aed"
+        ],
+        "properties": {
+          "order_id": {
+            "type": "string"
+          },
+          "total_aed": {
+            "type": "number",
+            "minimum": 0
+          }
+        }
+      },
+      "evaluation_method": "json_schema_validation",
+      "difficulty": "easy",
+      "dataset_version": "1.0.0",
+      "tags": [
+        "json",
+        "schema_validation"
+      ]
+    },
+    {
+      "test_case_id": "STR-005",
+      "task_category": "structured_output",
+      "input_prompt": "Classify 'The app crashes on launch' as a bug report with high priority.",
+      "expected_output": {
+        "category": "bug_report",
+        "priority": "high"
+      },
+      "expected_output_schema": {
+        "type": "object",
+        "required": [
+          "category",
+          "priority"
+        ],
+        "properties": {
+          "category": {
+            "type": "string",
+            "enum": [
+              "bug_report",
+              "feature_request",
+              "question"
+            ]
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ]
+          }
+        }
+      },
+      "evaluation_method": "json_schema_validation",
+      "difficulty": "easy",
+      "dataset_version": "1.0.0",
+      "tags": [
+        "json",
+        "schema_validation"
+      ]
+    },
+    {
+      "test_case_id": "STR-006",
+      "task_category": "structured_output",
+      "input_prompt": "Return a valid empty list of warnings and set ok to true.",
+      "expected_output": {
+        "ok": true,
+        "warnings": []
+      },
+      "expected_output_schema": {
+        "type": "object",
+        "required": [
+          "ok",
+          "warnings"
+        ],
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "evaluation_method": "json_schema_validation",
+      "difficulty": "easy",
+      "dataset_version": "1.0.0",
+      "tags": [
+        "json",
+        "schema_validation"
+      ]
+    },
+    {
+      "test_case_id": "STR-007",
+      "task_category": "structured_output",
+      "input_prompt": "Extract the meeting date 2026-11-03 and time 14:30.",
+      "expected_output": {
+        "date": "2026-11-03",
+        "time": "14:30"
+      },
+      "expected_output_schema": {
+        "type": "object",
+        "required": [
+          "date",
+          "time"
+        ],
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "time": {
+            "type": "string",
+            "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$"
+          }
+        }
+      },
+      "evaluation_method": "json_schema_validation",
+      "difficulty": "easy",
+      "dataset_version": "1.0.0",
+      "tags": [
+        "json",
+        "schema_validation"
+      ]
+    },
+    {
+      "test_case_id": "STR-008",
+      "task_category": "structured_output",
+      "input_prompt": "Return a score of 0.87 and label it acceptable.",
+      "expected_output": {
+        "score": 0.87,
+        "label": "acceptable"
+      },
+      "expected_output_schema": {
+        "type": "object",
+        "required": [
+          "score",
+          "label"
+        ],
+        "properties": {
+          "score": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "label": {
+            "type": "string"
+          }
+        }
+      },
+      "evaluation_method": "json_schema_validation",
+      "difficulty": "easy",
+      "dataset_version": "1.0.0",
+      "tags": [
+        "json",
+        "schema_validation"
+      ]
+    },
+    {
+      "test_case_id": "STR-009",
+      "task_category": "structured_output",
+      "input_prompt": "Extract product name 'Wireless Mouse' and quantity 3.",
+      "expected_output": {
+        "product": "Wireless Mouse",
+        "quantity": 3
+      },
+      "expected_output_schema": {
+        "type": "object",
+        "required": [
+          "product",
+          "quantity"
+        ],
+        "properties": {
+          "product": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
+      "evaluation_method": "json_schema_validation",
+      "difficulty": "easy",
+      "dataset_version": "1.0.0",
+      "tags": [
+        "json",
+        "schema_validation"
+      ]
+    },
+    {
+      "test_case_id": "STR-010",
+      "task_category": "structured_output",
+      "input_prompt": "Return whether the task is complete (false) and the missing dependency ('database').",
+      "expected_output": {
+        "complete": false,
+        "missing_dependency": "database"
+      },
+      "expected_output_schema": {
+        "type": "object",
+        "required": [
+          "complete",
+          "missing_dependency"
+        ],
+        "properties": {
+          "complete": {
+            "type": "boolean"
+          },
+          "missing_dependency": {
+            "type": "string"
+          }
+        }
+      },
+      "evaluation_method": "json_schema_validation",
+      "difficulty": "easy",
+      "dataset_version": "1.0.0",
+      "tags": [
+        "json",
+        "schema_validation"
+      ]
+    },
+    {
+      "test_case_id": "STR-011",
+      "task_category": "structured_output",
+      "input_prompt": "Classify 'I love the new design' sentiment as positive.",
+      "expected_output": {
+        "sentiment": "positive"
+      },
+      "expected_output_schema": {
+        "type": "object",
+        "required": [
+          "sentiment"
+        ],
+        "properties": {
+          "sentiment": {
+            "type": "string",
+            "enum": [
+              "positive",
+              "neutral",
+              "negative"
+            ]
+          }
+        }
+      },
+      "evaluation_method": "json_schema_validation",
+      "difficulty": "medium",
+      "dataset_version": "1.0.0",
+      "tags": [
+        "json",
+        "schema_validation"
+      ]
+    },
+    {
+      "test_case_id": "STR-012",
+      "task_category": "structured_output",
+      "input_prompt": "Extract the currency and amount from 'AED 125.00'.",
+      "expected_output": {
+        "currency": "AED",
+        "amount": 125.0
+      },
+      "expected_output_schema": {
+        "type": "object",
+        "required": [
+          "currency",
+          "amount"
+        ],
+        "properties": {
+          "currency": {
+            "type": "string",
+            "enum": [
+              "AED",
+              "INR",
+              "USD",
+              "EUR"
+            ]
+          },
+          "amount": {
+            "type": "number",
+            "minimum": 0
+          }
+        }
+      },
+      "evaluation_method": "json_schema_validation",
+      "difficulty": "medium",
+      "dataset_version": "1.0.0",
+      "tags": [
+        "json",
+        "schema_validation"
+      ]
+    },
+    {
+      "test_case_id": "STR-013",
+      "task_category": "structured_output",
+      "input_prompt": "Return exactly two tags: python and testing.",
+      "expected_output": {
+        "tags": [
+          "python",
+          "testing"
+        ]
+      },
+      "expected_output_schema": {
+        "type": "object",
+        "required": [
+          "tags"
+        ],
+        "properties": {
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 2,
+            "maxItems": 2
+          }
+        }
+      },
+      "evaluation_method": "json_schema_validation",
+      "difficulty": "medium",
+      "dataset_version": "1.0.0",
+      "tags": [
+        "json",
+        "schema_validation"
+      ]
+    },
+    {
+      "test_case_id": "STR-014",
+      "task_category": "structured_output",
+      "input_prompt": "Represent a server health check as service api, status healthy, latency 42 milliseconds.",
+      "expected_output": {
+        "service": "api",
+        "status": "healthy",
+        "latency_ms": 42
+      },
+      "expected_output_schema": {
+        "type": "object",
+        "required": [
+          "service",
+          "status",
+          "latency_ms"
+        ],
+        "properties": {
+          "service": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "healthy",
+              "degraded",
+              "down"
+            ]
+          },
+          "latency_ms": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "evaluation_method": "json_schema_validation",
+      "difficulty": "medium",
+      "dataset_version": "1.0.0",
+      "tags": [
+        "json",
+        "schema_validation"
+      ]
+    },
+    {
+      "test_case_id": "STR-015",
+      "task_category": "structured_output",
+      "input_prompt": "Extract the email address support@example.com and mark verified as false.",
+      "expected_output": {
+        "email": "support@example.com",
+        "verified": false
+      },
+      "expected_output_schema": {
+        "type": "object",
+        "required": [
+          "email",
+          "verified"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "verified": {
+            "type": "boolean"
+          }
+        }
+      },
+      "evaluation_method": "json_schema_validation",
+      "difficulty": "medium",
+      "dataset_version": "1.0.0",
+      "tags": [
+        "json",
+        "schema_validation"
+      ]
+    },
+    {
+      "test_case_id": "STR-016",
+      "task_category": "structured_output",
+      "input_prompt": "Return a two-item array of numeric measurements: 1.5 and 2.5.",
+      "expected_output": {
+        "measurements": [
+          1.5,
+          2.5
+        ]
+      },
+      "expected_output_schema": {
+        "type": "object",
+        "required": [
+          "measurements"
+        ],
+        "properties": {
+          "measurements": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 2,
+            "maxItems": 2
+          }
+        }
+      },
+      "evaluation_method": "json_schema_validation",
+      "difficulty": "medium",
+      "dataset_version": "1.0.0",
+      "tags": [
+        "json",
+        "schema_validation"
+      ]
+    },
+    {
+      "test_case_id": "STR-017",
+      "task_category": "structured_output",
+      "input_prompt": "Classify the request as access_request and set approved to false.",
+      "expected_output": {
+        "request_type": "access_request",
+        "approved": false
+      },
+      "expected_output_schema": {
+        "type": "object",
+        "required": [
+          "request_type",
+          "approved"
+        ],
+        "properties": {
+          "request_type": {
+            "type": "string"
+          },
+          "approved": {
+            "type": "boolean"
+          }
+        }
+      },
+      "evaluation_method": "json_schema_validation",
+      "difficulty": "medium",
+      "dataset_version": "1.0.0",
+      "tags": [
+        "json",
+        "schema_validation"
+      ]
+    },
+    {
+      "test_case_id": "STR-018",
+      "task_category": "structured_output",
+      "input_prompt": "Extract the two participants: Amina and Omar.",
+      "expected_output": {
+        "participants": [
+          "Amina",
+          "Omar"
+        ]
+      },
+      "expected_output_schema": {
+        "type": "object",
+        "required": [
+          "participants"
+        ],
+        "properties": {
+          "participants": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 2,
+            "maxItems": 2
+          }
+        }
+      },
+      "evaluation_method": "json_schema_validation",
+      "difficulty": "medium",
+      "dataset_version": "1.0.0",
+      "tags": [
+        "json",
+        "schema_validation"
+      ]
+    },
+    {
+      "test_case_id": "STR-019",
+      "task_category": "structured_output",
+      "input_prompt": "Return an error object with code TIMEOUT and retryable true.",
+      "expected_output": {
+        "error_code": "TIMEOUT",
+        "retryable": true
+      },
+      "expected_output_schema": {
+        "type": "object",
+        "required": [
+          "error_code",
+          "retryable"
+        ],
+        "properties": {
+          "error_code": {
+            "type": "string"
+          },
+          "retryable": {
+            "type": "boolean"
+          }
+        }
+      },
+      "evaluation_method": "json_schema_validation",
+      "difficulty": "medium",
+      "dataset_version": "1.0.0",
+      "tags": [
+        "json",
+        "schema_validation"
+      ]
+    },
+    {
+      "test_case_id": "STR-020",
+      "task_category": "structured_output",
+      "input_prompt": "Return name 'EvalForge' and version '1.0.0'.",
+      "expected_output": {
+        "name": "EvalForge",
+        "version": "1.0.0"
+      },
+      "expected_output_schema": {
+        "type": "object",
+        "required": [
+          "name",
+          "version"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        }
+      },
+      "evaluation_method": "json_schema_validation",
+      "difficulty": "medium",
+      "dataset_version": "1.0.0",
+      "tags": [
+        "json",
+        "schema_validation"
+      ]
+    }
+  ]
+}

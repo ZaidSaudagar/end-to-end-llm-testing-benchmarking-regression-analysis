@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "end-to-end-llm-testing-benchmarking-and-regression-analysis"
 version = "0.1.0"
@@ -20,6 +24,7 @@ dependencies = [
     "scikit-learn>=1.5.1",
     "plotly>=5.24.0",
     "sentence-transformers>=3.2.1",
+    "jsonschema>=4.23.0",
 ]
 
 [project.optional-dependencies]
@@ -30,6 +35,9 @@ dev = [
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
+
+[tool.setuptools.packages.find]
+include = ["backend*"]
 
 [tool.ruff]
 line-length = 100
