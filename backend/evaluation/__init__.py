@@ -1,5 +1,10 @@
 """Dataset loading and deterministic evaluation primitives."""
 
+from backend.evaluation.analysis import (
+    MetricComparison,
+    RunComparisonResult,
+    compare_runs,
+)
 from backend.evaluation.datasets import DatasetDocument, DatasetValidationError, load_dataset
 from backend.evaluation.judge import (
     DEFAULT_RUBRIC,
@@ -21,6 +26,7 @@ __all__ = [
     "DatasetValidationError",
     "DEFAULT_RUBRIC",
     "LLMJudge",
+    "MetricComparison",
     "JudgeAggregate",
     "JudgeDimension",
     "JudgeOutcome",
@@ -28,8 +34,10 @@ __all__ = [
     "JudgeRubric",
     "JudgeRun",
     "JudgeScorecard",
+    "RunComparisonResult",
     "SemanticScorer",
     "build_configured_judge",
+    "compare_runs",
     "evaluate_case",
     "load_dataset",
 ]

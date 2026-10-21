@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import uuid
+from datetime import datetime, timezone
 from pathlib import Path
 
 from fastapi import Depends, FastAPI, HTTPException
@@ -9,6 +11,12 @@ from sqlalchemy.orm import Session
 
 from backend.config import settings
 from backend.database import Base, engine, get_db
+from backend.evaluation.analysis import compare_runs
+from backend.evaluation.analysis_schemas import (
+    RunAnalysisListItem,
+    RunAnalysisResponse,
+    RunComparisonRequest,
+)
 from backend.evaluation.datasets import DatasetValidationError, load_dataset
 from backend.evaluation.judge import build_configured_judge
 from backend.evaluation.run_schemas import (
@@ -18,7 +26,7 @@ from backend.evaluation.run_schemas import (
     RunSummary,
 )
 from backend.evaluation.runner import execute_run
-from backend.models import BenchmarkRun
+from backend.models import BenchmarkRun, RunAnalysis
 from backend.providers import create_configured_providers
 
 DATASETS_DIR = Path(__file__).resolve().parents[1] / "datasets"
@@ -206,3 +214,91 @@ def get_run(run_id: str, db: Session = Depends(get_db)) -> dict[str, object]:
         for case in run.cases
     ]
     return payload
+
+
+@app.post("/api/analyses/compare", response_model=RunAnalysisResponse, status_code=201)
+def create_run_comparison(
+    request: RunComparisonRequest,
+    db: Session = Depends(get_db),
+) -> dict[str, object]:
+    baseline = db.get(BenchmarkRun, request.baseline_run_id)
+    candidate = db.get(BenchmarkRun, request.candidate_run_id)
+    if baseline is None or candidate is None:
+        raise HTTPException(status_code=404, detail="Baseline or candidate run was not found.")
+    if baseline.status == "running" or candidate.status == "running":
+        raise HTTPException(status_code=409, detail="Both runs must finish before comparison.")
+    try:
+        result = compare_runs(
+            baseline,
+            candidate,
+            alpha=request.alpha,
+            minimum_regression_drop=request.minimum_regression_drop,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    if not result.metrics:
+        raise HTTPException(
+            status_code=422,
+            detail="The runs have no paired completed cases with comparable metrics.",
+        )
+
+    analysis = RunAnalysis(
+        id=str(uuid.uuid4()),
+        baseline_run_id=baseline.id,
+        candidate_run_id=candidate.id,
+        method_version=result.method_version,
+        alpha=request.alpha,
+        minimum_regression_drop=request.minimum_regression_drop,
+        created_at=datetime.now(timezone.utc),
+        result=result.model_dump(mode="json"),
+    )
+    db.add(analysis)
+    db.commit()
+    db.refresh(analysis)
+    return {
+        "id": analysis.id,
+        "created_at": analysis.created_at.isoformat(),
+        "result": analysis.result,
+    }
+
+
+@app.get("/api/analyses", response_model=list[RunAnalysisListItem])
+def list_run_analyses(
+    limit: int = 50,
+    db: Session = Depends(get_db),
+) -> list[dict[str, object]]:
+    if not 1 <= limit <= 200:
+        raise HTTPException(status_code=422, detail="limit must be between 1 and 200")
+    analyses = db.scalars(
+        select(RunAnalysis).order_by(RunAnalysis.created_at.desc()).limit(limit)
+    ).all()
+    return [
+        {
+            "id": analysis.id,
+            "created_at": analysis.created_at.isoformat(),
+            "baseline_run_id": analysis.baseline_run_id,
+            "candidate_run_id": analysis.candidate_run_id,
+            "method_version": analysis.method_version,
+            "metric_count": len(analysis.result.get("metrics", [])),
+            "regressions_detected": sum(
+                metric.get("regression_detected", False)
+                for metric in analysis.result.get("metrics", [])
+            ),
+        }
+        for analysis in analyses
+    ]
+
+
+@app.get("/api/analyses/{analysis_id}", response_model=RunAnalysisResponse)
+def get_run_analysis(
+    analysis_id: str,
+    db: Session = Depends(get_db),
+) -> dict[str, object]:
+    analysis = db.get(RunAnalysis, analysis_id)
+    if analysis is None:
+        raise HTTPException(status_code=404, detail="Analysis was not found.")
+    return {
+        "id": analysis.id,
+        "created_at": analysis.created_at.isoformat(),
+        "result": analysis.result,
+    }

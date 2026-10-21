@@ -71,3 +71,22 @@ class BenchmarkCaseResult(Base):
     __table_args__ = (
         Index("ix_benchmark_case_results_run_case", "run_id", "test_case_id", unique=True),
     )
+
+
+class RunAnalysis(Base):
+    __tablename__ = "run_analyses"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    baseline_run_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("benchmark_runs.id"), nullable=False
+    )
+    candidate_run_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("benchmark_runs.id"), nullable=False
+    )
+    method_version: Mapped[str] = mapped_column(String(100), nullable=False)
+    alpha: Mapped[float] = mapped_column(Float, nullable=False)
+    minimum_regression_drop: Mapped[float] = mapped_column(Float, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    result: Mapped[dict] = mapped_column(JSON, nullable=False)
+
+    __table_args__ = (Index("ix_run_analyses_created_at", "created_at"),)

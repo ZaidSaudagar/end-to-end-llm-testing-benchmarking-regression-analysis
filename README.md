@@ -145,6 +145,20 @@ curl http://127.0.0.1:8000/api/runs/<run-id>
 
 Add `"model_id":"provider/model-name"` to override the provider default. Add `"include_judge":true` to enable the optional judge for this run; judging must also be enabled in `.env` and its provider key configured. Calls are sequential in this milestone. Unsupported evaluation methods are recorded as evaluation errors instead of being assigned proxy scores. Provider errors are retained per case and the run continues with the next case.
 
+## Statistics and regression analysis
+
+Compare two saved runs using `POST /api/analyses/compare` with `baseline_run_id` and `candidate_run_id`. The runs must have the same dataset SHA-256, and only case IDs completed in both runs contribute. The report includes paired means and deltas for deterministic pass rate, semantic similarity, judge overall score, and available judge dimensions. Binary pass-rate changes use an exact McNemar test; continuous scores use a Wilcoxon signed-rank test. Paired bootstrap intervals summarize uncertainty in the mean delta, and Holm-Bonferroni adjustment controls the family-wise error rate across reported metrics. A regression is flagged only when the adjusted p-value is below `alpha` and the candidate mean drop exceeds `minimum_regression_drop`.
+
+The API defaults to `alpha=0.05` and `minimum_regression_drop=0`. The minimum drop uses the metric's own scale: pass rate is a fraction (0.05 means five percentage points), semantic similarity is cosine similarity, and judge scores use the 1–5 rubric scale. Analyses are persisted and can be listed with `GET /api/analyses` or retrieved with `GET /api/analyses/{analysis_id}`.
+
+```bash
+curl -X POST http://127.0.0.1:8000/api/analyses/compare \
+  -H "Content-Type: application/json" \
+  -d '{"baseline_run_id":"<baseline-run-id>","candidate_run_id":"<candidate-run-id>","alpha":0.05}'
+```
+
+Regression flags are statistical signals, not proof that a model caused a change. Small or project-authored datasets have limited power and representativeness. Review paired case counts, effect sizes, intervals, failure rates, and qualitative outputs before drawing conclusions. Partial runs compare only the cases with usable values in both runs; a one-pair result is descriptive and has no significance test.
+
 ## LLM-as-a-judge
 
 Judging is disabled by default. To enable it, set `JUDGE_ENABLED=true`, choose a configured `JUDGE_PROVIDER` (`gemini` or `openrouter`), and set `JUDGE_MODEL_ID`. The provider's corresponding API key must be configured. `JUDGE_MAX_RESPONSE_ATTEMPTS` is bounded to 1–3 and `JUDGE_REPETITIONS` to 1–5. Each repetition is a separate provider request and may incur cost; judge output includes provider/model, prompt and rubric versions, token usage, latency, and any available estimated cost. No calls are made when judging is disabled.
