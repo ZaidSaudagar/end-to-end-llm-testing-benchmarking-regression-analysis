@@ -15,6 +15,7 @@ class Settings:
     environment: str = os.getenv("ENVIRONMENT", "development")
     debug: bool = os.getenv("DEBUG", "true").lower() == "true"
     database_url: str = os.getenv("DATABASE_URL", "sqlite:///./app.db")
+    backend_api_key: str = os.getenv("BACKEND_API_KEY", "")
     backend_host: str = os.getenv("BACKEND_HOST", "127.0.0.1")
     backend_port: int = int(os.getenv("BACKEND_PORT", "8000"))
     streamlit_port: int = int(os.getenv("STREAMLIT_PORT", "8501"))
@@ -46,6 +47,25 @@ class Settings:
         ).split(",")
         if origin.strip()
     )
+    allowed_hosts: tuple[str, ...] = tuple(
+        host.strip()
+        for host in os.getenv(
+            "ALLOWED_HOSTS", "localhost,127.0.0.1,testserver,backend"
+        ).split(",")
+        if host.strip()
+    )
+
+    def __post_init__(self) -> None:
+        if self.environment.strip().lower() != "production":
+            return
+        if self.debug:
+            raise ValueError("DEBUG must be false when ENVIRONMENT=production")
+        if len(self.backend_api_key) < 32:
+            raise ValueError("BACKEND_API_KEY must contain at least 32 characters in production")
+        if not self.cors_origins or "*" in self.cors_origins:
+            raise ValueError("CORS_ORIGINS must contain explicit origins in production")
+        if not self.allowed_hosts or "*" in self.allowed_hosts:
+            raise ValueError("ALLOWED_HOSTS must contain explicit hosts in production")
 
 
 settings = Settings()

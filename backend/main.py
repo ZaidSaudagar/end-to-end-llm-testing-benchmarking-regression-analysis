@@ -1,13 +1,18 @@
 from __future__ import annotations
 
+import hmac
+import logging
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import func, select
+from fastapi.responses import JSONResponse
+from sqlalchemy import func, select, text
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
+from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from backend.config import settings
 from backend.database import Base, engine, get_db
@@ -30,11 +35,17 @@ from backend.models import BenchmarkRun, RunAnalysis
 from backend.providers import create_configured_providers
 
 DATASETS_DIR = Path(__file__).resolve().parents[1] / "datasets"
+logger = logging.getLogger(__name__)
+is_production = settings.environment.strip().lower() == "production"
 
 app = FastAPI(
     title="End-to-End LLM Testing, Benchmarking and Regression Analysis",
     version="0.1.0",
     description="Modular evaluation, benchmarking, and regression analysis backend.",
+    debug=settings.debug,
+    docs_url=None if is_production else "/docs",
+    redoc_url=None if is_production else "/redoc",
+    openapi_url=None if is_production else "/openapi.json",
 )
 
 app.add_middleware(
@@ -44,8 +55,30 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+if is_production:
+    app.add_middleware(TrustedHostMiddleware, allowed_hosts=list(settings.allowed_hosts))
 
 Base.metadata.create_all(bind=engine)
+
+
+@app.middleware("http")
+async def protect_api(request: Request, call_next):
+    if request.method == "OPTIONS" or not request.url.path.startswith("/api/"):
+        return await call_next(request)
+    expected_key = settings.backend_api_key
+    if expected_key and not hmac.compare_digest(
+        request.headers.get("x-api-key", ""), expected_key
+    ):
+        return JSONResponse(status_code=401, content={"detail": "Invalid or missing API key."})
+    raw_content_length = request.headers.get("content-length")
+    if raw_content_length:
+        try:
+            content_length = int(raw_content_length)
+        except ValueError:
+            return JSONResponse(status_code=400, content={"detail": "Invalid Content-Length."})
+        if content_length > 1_048_576:
+            return JSONResponse(status_code=413, content={"detail": "Request body is too large."})
+    return await call_next(request)
 
 
 @app.get("/health")
@@ -59,6 +92,12 @@ def health_check() -> dict[str, object]:
 
 @app.get("/ready")
 def readiness_check() -> dict[str, object]:
+    try:
+        with engine.connect() as connection:
+            connection.execute(text("SELECT 1"))
+    except SQLAlchemyError as exc:
+        logger.exception("Readiness check could not connect to the database")
+        raise HTTPException(status_code=503, detail="Database is unavailable.") from exc
     return {"status": "ready"}
 
 
@@ -69,8 +108,36 @@ def provider_status() -> dict[str, object]:
             "gemini": {"configured": bool(settings.gemini_api_key)},
             "openrouter": {"configured": bool(settings.openrouter_api_key)},
         },
+        "judge_enabled": settings.judge_enabled,
+        "judge_provider": settings.judge_provider,
         "environment": settings.environment,
     }
+
+
+@app.get("/api/datasets")
+def list_datasets() -> list[dict[str, object]]:
+    available: list[dict[str, object]] = []
+    if not DATASETS_DIR.is_dir():
+        return available
+    for path in sorted(DATASETS_DIR.iterdir(), key=lambda item: item.name.casefold()):
+        if not path.is_file() or path.name.casefold() == "manifest.json":
+            continue
+        if path.suffix.casefold() not in {".csv", ".json"}:
+            continue
+        try:
+            dataset = load_dataset(path)
+        except DatasetValidationError:
+            continue
+        available.append(
+            {
+                "dataset_file": path.name,
+                "dataset_name": dataset.dataset_name,
+                "dataset_version": dataset.dataset_version,
+                "case_count": len(dataset.cases),
+                "sha256": dataset.source_sha256,
+            }
+        )
+    return available
 
 
 @app.get("/api/overview")

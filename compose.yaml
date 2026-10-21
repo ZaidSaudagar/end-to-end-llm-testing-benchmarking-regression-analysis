@@ -1,0 +1,56 @@
+services:
+  backend:
+    build: .
+    command: ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    environment:
+      APP_NAME: "End-to-End LLM Testing, Benchmarking and Regression Analysis"
+      ENVIRONMENT: production
+      DEBUG: "false"
+      DATABASE_URL: sqlite:////data/app.db
+      BACKEND_API_KEY: ${BACKEND_API_KEY:?Set BACKEND_API_KEY in .env}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      GEMINI_MODEL_ID: ${GEMINI_MODEL_ID:-gemini-3.8-flash}
+      OPENROUTER_MODEL_ID: ${OPENROUTER_MODEL_ID:-openai/gpt-4o-mini}
+      JUDGE_ENABLED: ${JUDGE_ENABLED:-false}
+      JUDGE_PROVIDER: ${JUDGE_PROVIDER:-openrouter}
+      JUDGE_MODEL_ID: ${JUDGE_MODEL_ID:-openai/gpt-4o-mini}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8501,http://127.0.0.1:8501}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-backend,localhost,127.0.0.1}
+      HF_HOME: /models/huggingface
+    volumes:
+      - app-data:/data
+      - model-cache:/models/huggingface
+    ports:
+      - "${BACKEND_BIND_ADDRESS:-127.0.0.1}:8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/ready', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
+  dashboard:
+    build: .
+    command: ["streamlit", "run", "dashboard/app.py", "--server.headless", "true", "--server.address", "0.0.0.0", "--server.port", "8501"]
+    environment:
+      ENVIRONMENT: production
+      DASHBOARD_API_URL: http://backend:8000
+      DASHBOARD_API_KEY: ${BACKEND_API_KEY:?Set BACKEND_API_KEY in .env}
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "${DASHBOARD_BIND_ADDRESS:-127.0.0.1}:8501:8501"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8501/_stcore/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+
+volumes:
+  app-data:
+  model-cache:
