@@ -1,0 +1,45 @@
+flowchart LR
+    subgraph Shell["App shell (App.tsx)"]
+        H["Header<br/>brand · status · nav"]
+        M["main.app-main"]
+        F["footer"]
+    end
+
+    subgraph Tabs["Tab views"]
+        OV["OverviewView<br/>verdict + matrix + ledger"]
+        BS["BenchmarkStudioView<br/>dataset · provider · model · judge"]
+        DE["DatasetExplorerView<br/>filter · paginate · inspect"]
+        RM["RegressionMatrixView<br/>baseline vs candidate"]
+        MS["ModelStudioView<br/>register · test · delete"]
+    end
+
+    MOD["RunDetailModal<br/>dialog + focus trap"]
+
+    subgraph Data["Data layer (api.ts)"]
+        FETCH["fetchOverview · fetchProviders<br/>fetchDatasets · fetchDatasetCases<br/>fetchRuns · fetchRunDetail<br/>fetchCustomModels"]
+        MUT["createRun · compareRuns<br/>createCustomModel · deleteCustomModel<br/>testCustomModel"]
+    end
+
+    H --> M
+    M --> OV
+    M --> BS
+    M --> DE
+    M --> RM
+    M --> MS
+    OV -->|onSelectRun| MOD
+    RM -->|onSelectRun| MOD
+    BS -->|onInspectRun| MOD
+    OV -->|onNavigateToBenchmark| BS
+
+    OV --> FETCH
+    BS --> FETCH
+    BS --> MUT
+    DE --> FETCH
+    RM --> FETCH
+    RM --> MUT
+    MS --> FETCH
+    MS --> MUT
+    MOD --> FETCH
+
+    FETCH -->|"/api/* via Vite proxy"| BE["FastAPI backend"]
+    MUT -->|"/api/* via Vite proxy"| BE

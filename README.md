@@ -6,18 +6,20 @@ A portfolio-grade platform for benchmarking large language models, measuring det
 
 This project is designed around a modular architecture that separates:
 
-- dataset management and validation
-- provider adapters for Gemini and OpenRouter
+- dataset management, inspection, and validation
+- provider adapters for Groq, Google Gemini, KiraAI MiniMax, and dynamic custom LLMs
 - evaluation logic for correctness, semantic similarity, and reliability checks
-- statistical comparison and regression analysis
-- persistent run history
-- a professional Streamlit dashboard
+- statistical comparison and regression analysis (Wilcoxon, McNemar)
+- persistent run history in SQLite
+- a modern high-performance React + TypeScript web dashboard
 
 The repository is intentionally structured so the underlying evaluation engine is independent from the UI and can be used from Python and the FastAPI backend.
 
+**Full technical documentation:** [docs/PROJECT_DOCUMENTATION.md](docs/PROJECT_DOCUMENTATION.md) — architecture, modules, API reference, database schema, design system, and testing. A Word version is at [docs/PROJECT_DOCUMENTATION.docx](docs/PROJECT_DOCUMENTATION.docx), 12 Mermaid diagrams live in [docs/diagrams/](docs/diagrams/), and [docs/README.md](docs/README.md) indexes the whole folder.
+
 ## Current milestone
 
-Milestones 1–10 are implemented in the current local checkout. The platform validates the supplied CSV and JSON datasets, rejects duplicate case IDs, records a SHA-256 fingerprint for each source file, and supports deterministic exact-match, numeric-tolerance, and JSON Schema checks. Sentence Transformers semantic similarity is available as a separate batch metric. Gemini and OpenRouter adapters normalize text, token usage, latency, finish reason, and request identifiers. An optional rubric-based LLM judge returns validated dimension scores and rationales, tracks judge/prompt/rubric versions and usage, supports bounded malformed-response repair and repeated scoring, and records failures without substituting zero. The FastAPI backend executes datasets, persists runs, and exposes run history and paired regression analysis. The Streamlit dashboard launches evaluations, browses case outputs, and reviews comparisons. Production configuration adds API-key protection and database readiness checks; Docker Compose packages the backend and dashboard for a single-host deployment.
+Milestones 1–10 are implemented in the current local checkout. The platform validates the supplied CSV and JSON datasets, rejects duplicate case IDs, records a SHA-256 fingerprint for each source file, and supports deterministic exact-match, numeric-tolerance, and JSON Schema checks. Sentence Transformers semantic similarity is available as a separate batch metric. Groq, Gemini, and MiniMax-compatible adapters normalize text, token usage, latency, finish reason, and request identifiers. An optional rubric-based LLM judge returns validated dimension scores and rationales, tracks judge/prompt/rubric versions and usage, supports bounded malformed-response repair and repeated scoring, and records failures without substituting zero. The FastAPI backend executes datasets, persists runs, and exposes run history and paired regression analysis. A modern React + TypeScript dashboard provides live execution, side-by-side regression diffs, dataset inspection, and custom model registration. Production configuration adds API-key protection and database readiness checks; Docker Compose packages the backend and frontend for deployment.
 
 The supplied datasets are project fixtures, not externally validated or statistically representative benchmarks. See [datasets/README.md](datasets/README.md) for their schema and limitations. Results should be interpreted alongside paired case outputs and uncertainty estimates, not as universal model rankings.
 
@@ -27,29 +29,29 @@ The supplied datasets are project fixtures, not externally validated or statisti
 User / operator
       |
       v
-Streamlit dashboard
+Modern Web Dashboard (React + TypeScript + Vite)
       |
       v
 FastAPI backend
       |
-      +--> Evaluation engine (deterministic and semantic checks)
-      +--> Dataset validation and hashing
-      +--> Provider adapters
+      +--> Evaluation engine (deterministic, semantic, and judge checks)
+      +--> Dataset validation, inspection, and hashing
+      +--> Provider adapters (Groq, Gemini, KiraAI MiniMax, Custom OpenAI endpoints)
       +--> SQLite persistence
-      +--> Run history / reporting
+      +--> Statistical regression analysis & run history
 ```
 
 ## Tech stack
 
 - Python 3.11+
 - FastAPI
-- Streamlit
+- React 19 + Vite 8 + TypeScript
 - SQLAlchemy + SQLite
 - Pydantic
-- Plotly
 - HTTPX
 - pytest
 - Ruff
+- oxlint
 - GitHub Actions
 - Docker and Docker Compose
 
@@ -68,13 +70,15 @@ pip install -e ".[dev]"
 Backend:
 
 ```bash
-uvicorn backend.main:app --host 127.0.0.1 --port 8000 --reload
+uvicorn backend.main:app --reload --port 8000
 ```
 
-Dashboard:
+Frontend:
 
 ```bash
-streamlit run dashboard/app.py --server.headless true --server.port 8501
+cd frontend
+npm install
+npm run dev
 ```
 
 ## Project structure
@@ -82,29 +86,29 @@ streamlit run dashboard/app.py --server.headless true --server.port 8501
 ```text
 .
 ├── backend/
-│   ├── __init__.py
-│   ├── config.py
-│   ├── database.py
-│   ├── main.py
-│   └── models/
-├── dashboard/
-│   ├── __init__.py
-│   ├── api_client.py
-│   └── app.py
-├── datasets/
-│   └── README.md
-├── docs/
-│   ├── ARCHITECTURE.md
-│   ├── DEPLOYMENT.md
-│   └── GITHUB_WORKFLOW.md
-├── .dockerignore
-├── tests/
-│   └── test_health.py
+│   ├── evaluation/       # Evaluation engine, metrics, semantic, runner, analysis
+│   ├── providers/        # Groq, Gemini, MiniMax, Custom OpenAI adapters
+│   ├── config.py         # App configuration & settings
+│   ├── database.py       # SQLAlchemy setup
+│   ├── main.py           # FastAPI REST endpoints
+│   └── models.py         # Database ORM models
+├── dashboard/            # Legacy Streamlit client (retained for API parity)
+├── datasets/             # Test cases (CSV/JSON) and manifest
+├── docs/                 # Documentation, diagrams, and screenshots
+│   ├── README.md                   Index of everything in this folder
+│   ├── PROJECT_DOCUMENTATION.md    Full technical documentation
+│   ├── PROJECT_DOCUMENTATION.docx  Word version
+│   ├── ARCHITECTURE.md             Condensed architecture overview
+│   ├── DEPLOYMENT.md               Docker Compose release path
+│   ├── build_docx.py               Regenerates the .docx from the .md
+│   ├── diagrams/                   12 Mermaid diagram sources
+│   └── screenshots/                Captured from the running app
+├── frontend/             # React 19 + Vite 8 + TypeScript dashboard
+│   └── README.md                   Frontend-specific setup and structure
+├── tests/                # Automated pytest test suites
+├── .github/workflows/    # CI: pytest, ruff, tsc, oxlint, vite build, docker build
 ├── Dockerfile
 ├── compose.yaml
-├── .env.example
-├── .gitignore
-├── CONTRIBUTING.md
 ├── pyproject.toml
 └── README.md
 ```
@@ -115,9 +119,30 @@ streamlit run dashboard/app.py --server.headless true --server.port 8501
 pytest -q
 ```
 
+Current result: **54 passed, 1 skipped**. The skipped test requires local `sentence-transformers` model weights.
+
+Frontend checks:
+
+```bash
+cd frontend
+npx tsc -b --noEmit    # type-check
+npm run lint           # oxlint
+npm run build          # production build
+```
+
+## Regenerating the documentation
+
+The Word document is generated from the Markdown source, so the two never drift:
+
+```bash
+.venv\Scripts\python.exe docs\build_docx.py
+```
+
+This produces `docs/PROJECT_DOCUMENTATION.docx` with real Word tables, styled headings, a table-of-contents field, embedded screenshots, and every Mermaid diagram source. It requires `python-docx` (`pip install python-docx`).
+
 ## Supplied datasets
 
-The `datasets/` directory contains the owner-provided EvalForge Dataset Pack v1.0.0: 63 general benchmark cases and 20 cases each for structured output, reference grounding, and controlled prompt injection. `manifest.json` records SHA-256 hashes for the supplied files. The loader recalculates a hash from each dataset's exact bytes and validates IDs and required fields before the cases can be used.
+The `datasets/` directory contains the Benchmark Dataset Pack v1.0.0: 63 general benchmark cases and 20 cases each for structured output, reference grounding, and controlled prompt injection. `manifest.json` records SHA-256 hashes for the supplied files. The loader recalculates a hash from each dataset's exact bytes and validates IDs and required fields before the cases can be used.
 
 These are project-specific starter fixtures, not an externally validated or statistically representative benchmark. Results must not be presented as universal model rankings. Semantic similarity is reported separately from correctness. See [datasets/README.md](datasets/README.md) for the dataset schema and limitations.
 
@@ -129,7 +154,7 @@ Automated unit tests use a fake encoder and do not download model weights. To ru
 
 ## Model providers
 
-Provider requests are asynchronous and can be called from Python. `GeminiProvider` uses Google's `generateContent` REST method; `OpenRouterProvider` uses `/api/v1/chat/completions`. The default model IDs can be changed with `GEMINI_MODEL_ID` and `OPENROUTER_MODEL_ID`; pass a request-level `model_id` to override them for one request. Configure `GEMINI_API_KEY` and/or `OPENROUTER_API_KEY` in the local `.env` file. The factory returns only adapters with configured credentials.
+Provider requests are asynchronous and can be called from Python. `GeminiProvider` uses Google's `generateContent` REST method; `MiniMaxProvider` uses the OpenAI-compatible chat completion API. MiniMax settings are `MINIMAX_API_KEY`, `MINIMAX_BASE_URL`, and `MINIMAX_MODEL` (or `MINIMAX_MODEL_ID`); the Kira AI endpoint and `minimax-m3.1-flash-free` model are configured in the local `.env`. The Gemini model ID can be changed with `GEMINI_MODEL_ID`; pass a request-level `model_id` to override one request. The factory returns adapters for configured credentials only.
 
 The adapters apply bounded timeouts and retries for timeouts, transport failures, HTTP 408/429, and server errors. Retried generation requests can be received more than once by a provider. Authentication and other client errors are not retried. Errors are normalized without including API keys or provider response bodies. Token counts and latency are normalized; estimated cost remains `null` unless a model-specific `CostEstimator` is supplied, so the project does not invent pricing.
 
@@ -144,7 +169,7 @@ Configure a provider key in `.env`, start the backend, then create and inspect a
 ```bash
 curl -X POST http://127.0.0.1:8000/api/runs \
   -H "Content-Type: application/json" \
-  -d '{"dataset_file":"benchmark_dataset.csv","provider":"openrouter"}'
+  -d '{"dataset_file":"benchmark_dataset.csv","provider":"minimax"}'
 
 curl http://127.0.0.1:8000/api/runs
 curl http://127.0.0.1:8000/api/runs/<run-id>
@@ -160,7 +185,31 @@ The API defaults to `alpha=0.05` and `minimum_regression_drop=0`. The minimum dr
 
 ## Dashboard
 
-Start the backend and dashboard using the commands in [Run the app](#run-the-app). The overview shows backend health, saved-run metrics, recent activity, and the latest comparison. The New evaluation tab lists validated dataset files and configured providers, supports a per-run model override, and offers optional judge scoring when the backend has it enabled. Run history shows case-level metrics and generated responses. The regression tab compares completed runs using the same dataset fingerprint and lets you set the minimum drop threshold; saved comparisons can be reopened. Configure the backend address with `DASHBOARD_API_URL` when it is not `http://127.0.0.1:8000`.
+The React dashboard has five sections, all reading live data from the FastAPI backend.
+
+**Overview** opens on the regression matrix — pass rate per model, latest run against the previous run of the same model, with the delta and a regression verdict. A plain-language verdict line sits above it, and a dense run ledger follows below. The matrix is the first thing in the viewport because a regression is the most important thing the platform can tell you.
+
+**Benchmark Studio** selects a dataset, a configured provider, a model, and whether to run the judge, then launches a run. Provider and model lists come from `GET /api/config/providers`, so only providers with a key configured are selectable.
+
+**Dataset Explorer** browses the cases in any dataset with search, category and difficulty filters, paginated 25 cases per page.
+
+**Regression Matrix** compares any two completed runs of the same dataset, with adjustable `alpha` and minimum regression drop.
+
+**Model & Provider Studio** registers and tests any OpenAI-compatible endpoint — local Ollama, LM Studio, vLLM, or a hosted gateway — and lists built-in provider status.
+
+Clicking any run opens a per-case inspection dialog with a status filter. The dialog traps focus, closes on Escape, and returns focus to the row that opened it.
+
+The interface is responsive down to 390px. Below 768px the regression matrix scrolls horizontally inside its own container with the model column pinned, and ledger rows collapse to two lines rather than stacking into cards.
+
+Configure the backend address with `VITE_BACKEND_URL` when it is not `http://127.0.0.1:8000`.
+
+### Design system
+
+The visual language follows one rule: **rose (`#f43f5e`) means regression, and nothing else.** Every other status is rendered in neutral greys and distinguished by its label rather than by colour. There are no gradients, no glassmorphism, and no shadows — depth comes from a one-step surface lift plus a hairline border. Typography is IBM Plex Sans for UI and IBM Plex Mono for identifiers and metric values, in sentence case throughout. A global `prefers-reduced-motion` block disables animation, and every interactive element has a visible `:focus-visible` ring. See [section 12 of the documentation](docs/PROJECT_DOCUMENTATION.md#12-design-system).
+
+### Legacy Streamlit dashboard
+
+`dashboard/app.py` is the original Streamlit interface over the same API. It is retained for parity and is useful as an independent client for verifying API behaviour, but it is not part of the redesigned interface. Run it with `.venv\Scripts\python.exe -m streamlit run dashboard/app.py`.
 
 ## Security and deployment
 
@@ -178,7 +227,7 @@ Regression flags are statistical signals, not proof that a model caused a change
 
 ## LLM-as-a-judge
 
-Judging is disabled by default. To enable it, set `JUDGE_ENABLED=true`, choose a configured `JUDGE_PROVIDER` (`gemini` or `openrouter`), and set `JUDGE_MODEL_ID`. The provider's corresponding API key must be configured. `JUDGE_MAX_RESPONSE_ATTEMPTS` is bounded to 1–3 and `JUDGE_REPETITIONS` to 1–5. Each repetition is a separate provider request and may incur cost; judge output includes provider/model, prompt and rubric versions, token usage, latency, and any available estimated cost. No calls are made when judging is disabled.
+Judging is disabled by default. To enable it, set `JUDGE_ENABLED=true`, choose a configured `JUDGE_PROVIDER` (`gemini` or `minimax`), and set `JUDGE_MODEL_ID`. The provider's corresponding API key must be configured. `JUDGE_MAX_RESPONSE_ATTEMPTS` is bounded to 1–3 and `JUDGE_REPETITIONS` to 1–5. Each repetition is a separate provider request and may incur cost; judge output includes provider/model, prompt and rubric versions, token usage, latency, and any available estimated cost. No calls are made when judging is disabled.
 
 The versioned rubric scores relevance, completeness, instruction following, factual alignment with supplied references, and clarity from 1–5. When no reference answer or context is supplied, factual alignment is explicitly not assessed and excluded from the overall mean. Candidate model identity is retained as run attribution but omitted from the judge prompt to reduce direct identity bias. Each judge response must be JSON that passes a strict schema; after bounded repair attempts, the run stores a failure category and no scorecard. Repeated runs aggregate successful scores only, report failures separately, and provide a population standard deviation when at least two repetitions succeed.
 
@@ -215,5 +264,4 @@ print(dataset.source_sha256)
 
 ## Environment and secrets
 
-Use `.env` locally for environment variables. Do not commit secrets or real API keys. The repository includes `.env.example` as the safe template.
-
+Use a private `.env` file in the project root for environment variables. Add your MiniMax key as `MINIMAX_API_KEY` before starting evaluations. Do not commit `.env` or share its contents; it is excluded from Git.

@@ -78,7 +78,8 @@ class APIClient:
             response = self._client.request(method, path, **kwargs)
         except httpx.HTTPError as exc:
             raise DashboardAPIError(
-                "Could not reach the backend. Check that FastAPI is running and the backend URL is correct."
+                "Could not reach the backend. Check that FastAPI is running and the "
+                "backend URL is correct."
             ) from exc
         if response.is_error:
             try:

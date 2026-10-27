@@ -1,0 +1,21 @@
+flowchart TD
+    A["Incoming request"] --> B{"Path starts with /api<br/>or is /health, /ready?"}
+    B -->|No| Z["Pass through"]
+    B -->|Yes| C{"BACKEND_API_KEY set?"}
+    C -->|No| Z
+    C -->|Yes| D{"x-api-key header present?"}
+    D -->|No| E["401 Unauthorized"]
+    D -->|Yes| F{"hmac.compare_digest<br/>matches?"}
+    F -->|No| E
+    F -->|Yes| G{"Content-Length > 1 MiB?"}
+    G -->|Yes| H["413 Payload Too Large"]
+    G -->|No| Z
+
+    Z --> I{"ENVIRONMENT == production?"}
+    I -->|Yes| J["TrustedHostMiddleware<br/>allowed hosts enforced"]
+    I -->|No| K["CORS from CORS_ORIGINS"]
+    J --> K
+    K --> L["Route handler"]
+
+    style E fill:#f43f5e,color:#fff
+    style H fill:#f43f5e,color:#fff

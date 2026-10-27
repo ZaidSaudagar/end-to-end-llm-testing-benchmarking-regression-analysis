@@ -1,0 +1,30 @@
+stateDiagram-v2
+    [*] --> running : POST /api/runs accepted
+
+    running --> completed : every case scored
+    running --> partial_failure : some cases errored
+    running --> failed : every case errored
+
+    completed --> [*]
+    partial_failure --> [*]
+    failed --> [*]
+
+    note right of running
+        Progress counters are committed
+        per case, so a crash mid-run leaves
+        a resumable, inspectable record.
+    end note
+
+    note right of partial_failure
+        passed_cases + errored_cases = total_cases
+        The run is still comparable, but the
+        regression verdict should be read with
+        the error rate in mind.
+    end note
+
+    note right of failed
+        error_message is set to a sanitized
+        summary such as "All provider requests
+        failed." No API keys or headers are
+        ever persisted.
+    end note

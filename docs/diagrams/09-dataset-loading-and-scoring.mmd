@@ -1,0 +1,24 @@
+flowchart TD
+    A["Dataset file in datasets/"] --> B{"Extension"}
+    B -->|".csv"| C["pandas.read_csv"]
+    B -->|".json"| D["json.load<br/>expects cases[] array"]
+
+    C --> E["Normalize each row to a case dict"]
+    D --> E
+
+    E --> F["Required: test_case_id,<br/>input_prompt, evaluation_method"]
+    F --> G{"evaluation_method"}
+    G -->|"exact_match"| H["Normalized string equality"]
+    G -->|"numeric_tolerance"| I["Parse float, compare within tolerance"]
+    G -->|"json_schema_validation"| J["jsonschema.validate against<br/>expected_output_schema"]
+    G -->|"anything else"| K["ValueError — fails closed"]
+
+    H --> L["DeterministicResult"]
+    I --> L
+    J --> L
+
+    L --> M["Optional: semantic similarity<br/>if reference_answer present"]
+    M --> N["Optional: LLM judge scorecard<br/>if judge_enabled"]
+
+    N --> O["Case verdict:<br/>passed | failed | error"]
+    O --> P["Aggregate into run counters"]

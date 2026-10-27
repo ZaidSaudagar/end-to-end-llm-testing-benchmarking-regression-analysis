@@ -1,0 +1,26 @@
+flowchart TD
+    A["Overview tab loads"] --> B["Group runs by provider::model_id"]
+    B --> C["Sort each group by started_at desc"]
+    C --> D{"Group has 2+ runs?"}
+
+    D -->|No| E["Verdict: 'No model has two runs yet'<br/>Action: Run a benchmark"]
+    D -->|Yes| F["latest = runs[0]<br/>previous = runs[1]"]
+
+    F --> G["latestPassRate = passed/total * 100"]
+    G --> H["previousPassRate = passed/total * 100"]
+    H --> I["delta = latest - previous"]
+
+    I --> J{"delta < 0?"}
+    J -->|Yes| K["Row marked is-regressed<br/>delta rendered in rose"]
+    J -->|No| L["Row rendered neutral"]
+
+    K --> M["Verdict line names the regressed model<br/>and the size of the drop"]
+    L --> N["Verdict line reports the fleet is stable"]
+
+    M --> O["Matrix table: one row per model"]
+    N --> O
+    E --> O
+    O --> P["Ledger: dense rows, newest first"]
+    P --> Q{"User clicks a row or a matrix cell?"}
+    Q -->|Yes| R["onSelectRun → RunDetailModal"]
+    Q -->|No| S["Idle; polled every 10s"]

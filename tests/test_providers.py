@@ -10,13 +10,15 @@ from backend.config import Settings
 from backend.providers import (
     GeminiProvider,
     GenerationRequest,
+    GroqProvider,
+    MiniMaxProvider,
     MockProvider,
-    OpenRouterProvider,
     ProviderError,
     RetryPolicy,
     TokenUsage,
     create_configured_providers,
 )
+from backend.providers.factory import create_custom_provider
 
 
 def _client(handler: Any) -> httpx.AsyncClient:
@@ -87,67 +89,6 @@ def test_gemini_adapter_builds_request_and_normalizes_usage() -> None:
     assert response.latency_ms >= 0
 
 
-def test_openrouter_adapter_builds_chat_request_and_normalizes_content_blocks() -> None:
-    seen: dict[str, Any] = {}
-
-    def handler(request: httpx.Request) -> httpx.Response:
-        seen["url"] = str(request.url)
-        seen["headers"] = dict(request.headers)
-        seen["body"] = json.loads(request.content)
-        return httpx.Response(
-            200,
-            json={
-                "id": "req-or-1",
-                "model": "provider/test-model",
-                "choices": [
-                    {
-                        "message": {
-                            "content": [
-                                {"type": "text", "text": "Structured "},
-                                {"type": "text", "text": "content"},
-                            ]
-                        },
-                        "finish_reason": "stop",
-                    }
-                ],
-                "usage": {"prompt_tokens": 5, "completion_tokens": 4},
-            },
-        )
-
-    async def run() -> Any:
-        async with _client(handler) as client:
-            provider = OpenRouterProvider(
-                api_key="test-router-key",
-                default_model_id="router/default",
-                referer="https://example.test",
-                app_title="Evaluation test",
-                client=client,
-            )
-            return await provider.generate(
-                GenerationRequest(
-                    prompt="Answer",
-                    model_id="provider/test-model",
-                    system_prompt="System",
-                    max_output_tokens=32,
-                )
-            )
-
-    response = asyncio.run(run())
-
-    assert seen["url"] == "https://openrouter.ai/api/v1/chat/completions"
-    assert seen["headers"]["authorization"] == "Bearer test-router-key"
-    assert seen["headers"]["http-referer"] == "https://example.test"
-    assert seen["headers"]["x-title"] == "Evaluation test"
-    assert seen["body"]["model"] == "provider/test-model"
-    assert seen["body"]["messages"] == [
-        {"role": "system", "content": "System"},
-        {"role": "user", "content": "Answer"},
-    ]
-    assert response.text == "Structured content"
-    assert response.usage == TokenUsage(input_tokens=5, output_tokens=4, total_tokens=9)
-    assert response.estimated_cost_usd is None
-
-
 def test_retry_is_bounded_and_honors_retry_after() -> None:
     attempts = 0
     delays: list[float] = []
@@ -167,9 +108,9 @@ def test_retry_is_bounded_and_honors_retry_after() -> None:
 
     async def run() -> Any:
         async with _client(handler) as client:
-            provider = OpenRouterProvider(
+            provider = MiniMaxProvider(
                 api_key="key",
-                default_model_id="router/model",
+                default_model_id="minimax/model",
                 client=client,
                 retry_policy=RetryPolicy(
                     max_attempts=2, initial_delay_seconds=0.1, max_delay_seconds=0.5
@@ -224,9 +165,9 @@ def test_retry_stops_after_max_attempts_and_returns_sanitized_error() -> None:
 
     async def run() -> None:
         async with _client(handler) as client:
-            provider = OpenRouterProvider(
+            provider = MiniMaxProvider(
                 api_key="key",
-                default_model_id="router/model",
+                default_model_id="minimax/model",
                 client=client,
                 retry_policy=RetryPolicy(
                     max_attempts=2, initial_delay_seconds=0, max_delay_seconds=0
@@ -258,9 +199,9 @@ def test_transport_timeout_retries_once_when_policy_allows() -> None:
 
     async def run() -> Any:
         async with _client(handler) as client:
-            provider = OpenRouterProvider(
+            provider = MiniMaxProvider(
                 api_key="key",
-                default_model_id="router/model",
+                default_model_id="minimax/model",
                 client=client,
                 retry_policy=RetryPolicy(
                     max_attempts=2, initial_delay_seconds=0, max_delay_seconds=0
@@ -292,7 +233,7 @@ def test_cost_estimator_is_optional_and_uses_normalized_usage() -> None:
         return httpx.Response(
             200,
             json={
-                "model": "router/actual-model",
+                "model": "minimax/actual-model",
                 "usage": {"prompt_tokens": 4, "completion_tokens": 5},
                 "choices": [{"message": {"content": "ok"}, "finish_reason": "stop"}],
             },
@@ -300,9 +241,9 @@ def test_cost_estimator_is_optional_and_uses_normalized_usage() -> None:
 
     async def run() -> Any:
         async with _client(handler) as client:
-            provider = OpenRouterProvider(
+            provider = MiniMaxProvider(
                 api_key="key",
-                default_model_id="router/requested-model",
+                default_model_id="minimax/requested-model",
                 client=client,
                 cost_estimator=estimator,
             )
@@ -311,7 +252,7 @@ def test_cost_estimator_is_optional_and_uses_normalized_usage() -> None:
     response = asyncio.run(run())
 
     assert response.estimated_cost_usd == 0.004
-    assert estimator.args == ("router/actual-model", 4, 5)
+    assert estimator.args == ("minimax/actual-model", 4, 5)
 
 
 def test_provider_normalizes_malformed_success_payload_as_provider_error() -> None:
@@ -320,8 +261,8 @@ def test_provider_normalizes_malformed_success_payload_as_provider_error() -> No
 
     async def run() -> None:
         async with _client(handler) as client:
-            provider = OpenRouterProvider(
-                api_key="key", default_model_id="router/model", client=client
+            provider = MiniMaxProvider(
+                api_key="key", default_model_id="minimax/model", client=client
             )
             await provider.generate(GenerationRequest(prompt="test"))
 
@@ -351,9 +292,8 @@ def test_mock_provider_is_usable_without_credentials() -> None:
 def test_factory_returns_only_adapters_with_configured_credentials() -> None:
     config = Settings(
         gemini_api_key="gemini-secret",
-        openrouter_api_key="",
+        minimax_api_key="",
         gemini_model_id="gemini-fixture",
-        openrouter_model_id="router-fixture",
         provider_timeout_seconds=7,
         provider_max_attempts=2,
         provider_max_retry_delay_seconds=1,
@@ -363,3 +303,94 @@ def test_factory_returns_only_adapters_with_configured_credentials() -> None:
 
     assert list(providers) == ["gemini"]
     assert providers["gemini"].default_model_id == "gemini-fixture"  # type: ignore[attr-defined]
+
+
+def test_groq_adapter_normalizes_response_and_usage() -> None:
+    seen: dict[str, Any] = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen["url"] = str(request.url)
+        seen["auth"] = request.headers.get("authorization")
+        seen["body"] = json.loads(request.content)
+        return httpx.Response(
+            200,
+            json={
+                "id": "chatcmpl-groq-123",
+                "model": "llama-3.3-70b-versatile",
+                "choices": [
+                    {
+                        "message": {"role": "assistant", "content": "Groq response text"},
+                        "finish_reason": "stop",
+                    }
+                ],
+                "usage": {
+                    "prompt_tokens": 15,
+                    "completion_tokens": 8,
+                    "total_tokens": 23,
+                },
+            },
+        )
+
+    provider = GroqProvider(
+        api_key="gsk-fixture-key",
+        default_model_id="llama-3.3-70b-versatile",
+        client=_client(handler),
+    )
+
+    response = asyncio.run(provider.generate(GenerationRequest(prompt="Hello Groq!")))
+
+    assert response.provider == "groq"
+    assert response.text == "Groq response text"
+    assert response.model_id == "llama-3.3-70b-versatile"
+    assert response.usage.input_tokens == 15
+    assert response.usage.output_tokens == 8
+    assert response.usage.total_tokens == 23
+    assert seen["auth"] == "Bearer gsk-fixture-key"
+    assert seen["body"]["model"] == "llama-3.3-70b-versatile"
+
+
+def test_custom_openai_adapter_works_with_or_without_api_key() -> None:
+    seen: dict[str, Any] = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen["url"] = str(request.url)
+        seen["auth"] = request.headers.get("authorization")
+        return httpx.Response(
+            200,
+            json={
+                "id": "custom-1",
+                "model": "local-llama",
+                "choices": [{"message": {"role": "assistant", "content": "Local response"}}],
+                "usage": {"prompt_tokens": 5, "completion_tokens": 2, "total_tokens": 7},
+            },
+        )
+
+    # Local Ollama test without auth
+    provider = create_custom_provider(
+        base_url="http://localhost:11434/v1",
+        api_key="",
+        default_model_id="local-llama",
+        name="Ollama Local",
+        client=_client(handler),
+    )
+
+    response = asyncio.run(provider.generate(GenerationRequest(prompt="Test local")))
+
+    assert response.text == "Local response"
+    assert response.model_id == "local-llama"
+    assert seen["url"] == "http://localhost:11434/v1/chat/completions"
+    assert seen["auth"] is None
+
+
+def test_factory_includes_groq_when_key_configured() -> None:
+    config = Settings(
+        gemini_api_key="",
+        minimax_api_key="",
+        groq_api_key="gsk-fixture",
+        groq_model_id="llama-3.3-70b-versatile",
+    )
+
+    providers = create_configured_providers(config)
+
+    assert "groq" in providers
+    assert providers["groq"].default_model_id == "llama-3.3-70b-versatile"  # type: ignore[attr-defined]

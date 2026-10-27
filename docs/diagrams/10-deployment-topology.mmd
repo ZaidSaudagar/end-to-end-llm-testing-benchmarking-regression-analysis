@@ -1,0 +1,34 @@
+flowchart LR
+    subgraph Dev["Developer machine"]
+        ENV[".env<br/>API keys, ports, flags"]
+        VENV[".venv<br/>Python 3.11+"]
+        NODE["Node 20+<br/>npm"]
+    end
+
+    subgraph Backend["Backend process"]
+        UV["uvicorn backend.main:app<br/>port 8000"]
+        DBF[("app.db<br/>SQLite")]
+    end
+
+    subgraph Frontend["Frontend process"]
+        VITE["vite dev server<br/>port 5173"]
+        PROXY["/api, /health, /ready<br/>proxied to 127.0.0.1:8000"]
+    end
+
+    subgraph Optional["Optional"]
+        STREAMLIT["Streamlit dashboard<br/>dashboard/app.py"]
+        OLLAMA["Ollama / vLLM<br/>local OpenAI-compatible"]
+    end
+
+    ENV --> UV
+    ENV --> VITE
+    VENV --> UV
+    NODE --> VITE
+    UV --> DBF
+    VITE --> PROXY
+    PROXY --> UV
+    STREAMLIT --> UV
+    OLLAMA --> UV
+
+    style UV fill:#191b1f,color:#f2f3f5
+    style VITE fill:#191b1f,color:#f2f3f5

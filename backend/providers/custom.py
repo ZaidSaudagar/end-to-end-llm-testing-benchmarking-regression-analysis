@@ -1,4 +1,4 @@
-"""Adapter for OpenRouter's OpenAI-compatible chat completions endpoint."""
+"""Universal OpenAI-compatible provider adapter for custom user-registered LLMs."""
 
 from __future__ import annotations
 
@@ -8,27 +8,32 @@ from backend.providers.base import BaseHttpProvider
 from backend.providers.models import GenerationRequest, TokenUsage
 
 
-class OpenRouterProvider(BaseHttpProvider):
-    provider_name = "openrouter"
-    base_url = "https://openrouter.ai/api/v1"
+class CustomOpenAIProvider(BaseHttpProvider):
+    provider_name = "custom"
 
-    def __init__(self, *, referer: str | None = None, app_title: str | None = None, **kwargs: Any):
-        super().__init__(**kwargs)
-        self.referer = referer
-        self.app_title = app_title
+    def __init__(
+        self,
+        *,
+        base_url: str,
+        api_key: str = "",
+        custom_provider_name: str = "custom",
+        **kwargs: Any,
+    ):
+        effective_key = api_key.strip() if api_key and api_key.strip() else "none"
+        super().__init__(api_key=effective_key, **kwargs)
+        self.base_url = base_url.rstrip("/")
+        self.custom_provider_name = custom_provider_name
+        self._raw_api_key = api_key.strip() if api_key else ""
 
     def _headers(self) -> dict[str, str]:
-        headers = {
-            "Authorization": f"Bearer {self._api_key}",
-            "Content-Type": "application/json",
-        }
-        if self.referer:
-            headers["HTTP-Referer"] = self.referer
-        if self.app_title:
-            headers["X-Title"] = self.app_title
+        headers = {"Content-Type": "application/json"}
+        if self._raw_api_key:
+            headers["Authorization"] = f"Bearer {self._raw_api_key}"
         return headers
 
     def endpoint(self, payload: dict[str, Any]) -> str:
+        if self.base_url.endswith("/chat/completions"):
+            return self.base_url
         return f"{self.base_url}/chat/completions"
 
     def _payload(self, request: GenerationRequest, model_id: str) -> dict[str, Any]:
@@ -48,7 +53,9 @@ class OpenRouterProvider(BaseHttpProvider):
     ) -> tuple[str, TokenUsage, str | None, str | None, str | None]:
         choices = data.get("choices")
         if not isinstance(choices, list) or not choices or not isinstance(choices[0], dict):
-            raise ValueError("OpenRouter response did not contain a chat completion choice")
+            raise ValueError(
+                f"{self.custom_provider_name} response did not contain a chat completion choice"
+            )
         choice = choices[0]
         message = choice.get("message")
         content = message.get("content") if isinstance(message, dict) else None

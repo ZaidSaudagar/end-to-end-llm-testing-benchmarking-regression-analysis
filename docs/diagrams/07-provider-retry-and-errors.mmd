@@ -1,0 +1,27 @@
+flowchart TD
+    A["Provider request"] --> B{"HTTP status / exception"}
+    B -->|"200 OK"| C["Parse response body"]
+    B -->|"401 or 403"| D["authentication<br/>no retry"]
+    B -->|"408, 429, 5xx"| E["Retryable"]
+    B -->|"other 4xx"| F["request_rejected<br/>no retry"]
+    B -->|"TimeoutException"| E
+    B -->|"TransportError"| E
+
+    C --> G{"Body shape valid?"}
+    G -->|Yes| H["Return ProviderResponse"]
+    G -->|No| I["invalid_response<br/>no retry"]
+
+    E --> J{"Attempts remaining?"}
+    J -->|No| K["upstream_unavailable<br/>or rate_limited"]
+    J -->|Yes| L{"Retry-After header?"}
+    L -->|"numeric or HTTP-date"| M["Wait the stated delay"]
+    L -->|No| N["Exponential backoff<br/>initial * 2^attempt, capped"]
+    M --> O["Retry request"]
+    N --> O
+    O --> B
+
+    D --> P["ProviderError<br/>sanitized message"]
+    F --> P
+    I --> P
+    K --> P
+    P --> Q["Recorded on the case row as<br/>error_category + error_message"]

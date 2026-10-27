@@ -1,0 +1,51 @@
+flowchart TB
+    subgraph Client["Browser"]
+        UI["React 19 SPA<br/>Vite 8 + TypeScript"]
+    end
+
+    subgraph API["FastAPI application (backend/main.py)"]
+        MW["Middleware chain<br/>CORS → TrustedHost → protect_api"]
+        Routes["Route handlers"]
+    end
+
+    subgraph Core["Evaluation core (backend/evaluation)"]
+        DS["datasets.py<br/>load + SHA-256"]
+        RUN["runner.py<br/>execute_run"]
+        MET["metrics.py<br/>deterministic scoring"]
+        SEM["semantic.py<br/>sentence-transformers"]
+        JUD["judge.py<br/>LLM rubric scorecard"]
+        ANA["analysis.py<br/>compare_runs"]
+    end
+
+    subgraph Prov["Providers (backend/providers)"]
+        FAC["factory.py<br/>create_configured_providers"]
+        BASE["base.py<br/>retry + error mapping"]
+        IMPL["gemini · groq · minimax<br/>custom · mock"]
+    end
+
+    subgraph Store["Persistence"]
+        DB[("SQLite app.db<br/>SQLAlchemy 2.0")]
+    end
+
+    subgraph Ext["External services"]
+        LLM["LLM HTTP endpoints"]
+        ST["sentence-transformers<br/>model weights"]
+    end
+
+    UI -->|"HTTP /api/*"| MW
+    MW --> Routes
+    Routes --> DS
+    Routes --> RUN
+    Routes --> ANA
+    RUN --> MET
+    RUN --> SEM
+    RUN --> JUD
+    RUN --> FAC
+    FAC --> BASE
+    BASE --> IMPL
+    IMPL -->|"httpx"| LLM
+    SEM --> ST
+    DS --> DB
+    RUN --> DB
+    ANA --> DB
+    Routes --> DB

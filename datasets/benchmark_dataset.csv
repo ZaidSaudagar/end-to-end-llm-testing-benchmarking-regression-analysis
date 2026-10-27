@@ -1,4 +1,4 @@
-﻿test_case_id,task_category,input_prompt,reference_answer,evaluation_method,difficulty,reference_context,expected_output_schema,dataset_version,tags
+test_case_id,task_category,input_prompt,reference_answer,evaluation_method,difficulty,reference_context,expected_output_schema,dataset_version,tags
 GEN-001,general_knowledge,What is the capital city of Japan?,Tokyo.,exact_match,easy,,,1.0.0,geography;factual
 GEN-002,general_knowledge,Which planet is known as the Red Planet?,Mars.,exact_match,easy,,,1.0.0,astronomy;factual
 GEN-003,general_knowledge,What gas do plants primarily absorb from the atmosphere during photosynthesis?,Carbon dioxide (CO2).,reference_grounding,easy,,,1.0.0,biology;factual
@@ -10,25 +10,25 @@ GEN-008,general_knowledge,"At standard atmospheric pressure, what is the freezin
 GEN-009,general_knowledge,What is the primary language spoken in Brazil?,Portuguese.,exact_match,easy,,,1.0.0,geography;factual
 GEN-010,general_knowledge,Which organ pumps blood through the human circulatory system?,The heart.,reference_grounding,easy,,,1.0.0,biology;factual
 MATH-001,math_reasoning,A notebook costs 12 AED. What is the cost of 5 notebooks?,60 AED.,numeric_tolerance,easy,,,1.0.0,arithmetic
-MATH-002,math_reasoning,A shop reduces a 200 AED item by 15%. What is the sale price?,170 AED.,numeric_tolerance,medium,,,1.0.0,percentage;arithmetic
+MATH-002,math_reasoning,A shop reduces a 200 AED item by 15%. What is the sale price?,170 AED.,numeric_tolerance,hard,,,1.0.0,percentage;arithmetic
 MATH-003,math_reasoning,A car travels 180 km in 3 hours at a constant speed. What is its average speed?,60 km/h.,numeric_tolerance,easy,,,1.0.0,rates
 MATH-004,math_reasoning,"If x + 7 = 19, what is x?",12.,numeric_tolerance,easy,,,1.0.0,algebra
 MATH-005,math_reasoning,A team completes 3/4 of a 40-task list. How many tasks did it complete?,30 tasks.,numeric_tolerance,easy,,,1.0.0,fractions
-MATH-006,math_reasoning,A price rises from 80 to 100. What is the percentage increase?,25%.,numeric_tolerance,medium,,,1.0.0,percentage
+MATH-006,math_reasoning,A price rises from 80 to 100. What is the percentage increase?,25%.,numeric_tolerance,hard,,,1.0.0,percentage
 MATH-007,math_reasoning,A rectangle has length 9 cm and width 4 cm. What is its area?,36 square centimetres.,numeric_tolerance,easy,,,1.0.0,geometry
-MATH-008,math_reasoning,A meeting starts at 14:35 and lasts 1 hour 50 minutes. When does it end?,16:25.,exact_match,medium,,,1.0.0,time
-MATH-009,math_reasoning,"A box contains 4 red, 3 blue, and 5 green balls. How many balls are there in total?",12 balls.,numeric_tolerance,easy,,,1.0.0,counting
-MATH-010,math_reasoning,A subscription costs 30 AED per month. What is the cost for 8 months before any fees?,240 AED.,numeric_tolerance,easy,,,1.0.0,arithmetic
+MATH-008,math_reasoning,A meeting starts at 14:35 and lasts 1 hour 50 minutes. When does it end?,16:25.,exact_match,hard,,,1.0.0,time
+MATH-009,math_reasoning,"A box contains 4 red, 3 blue, and 5 green balls. How many balls are there in total?",12 balls.,numeric_tolerance,hard,,,1.0.0,counting
+MATH-010,math_reasoning,A subscription costs 30 AED per month. What is the cost for 8 months before any fees?,240 AED.,numeric_tolerance,hard,,,1.0.0,arithmetic
 CODE-001,programming,"In Python, what does len([4, 8, 12]) return?",3.,exact_match,easy,,,1.0.0,python;basics
 CODE-002,programming,Which Python keyword defines a function?,def.,exact_match,easy,,,1.0.0,python;syntax
-CODE-003,programming,What is the time complexity of binary search on a sorted array?,O(log n).,reference_grounding,medium,,,1.0.0,algorithms;complexity
+CODE-003,programming,What is the time complexity of binary search on a sorted array?,O(log n).,reference_grounding,hard,,,1.0.0,algorithms;complexity
 CODE-004,programming,"In SQL, which clause filters rows before grouping?",WHERE.,exact_match,medium,,,1.0.0,sql
 CODE-005,programming,What does HTTP status code 404 generally mean?,The requested resource was not found.,reference_grounding,easy,,,1.0.0,web;http
 CODE-006,programming,What is the purpose of a unit test?,"To verify a small, isolated unit of code behaves as expected.",semantic_similarity,easy,,,1.0.0,testing
-CODE-007,programming,Which Git command displays the working-tree and staging-area status?,git status.,exact_match,easy,,,1.0.0,git
-CODE-008,programming,What does JSON stand for?,JavaScript Object Notation.,exact_match,easy,,,1.0.0,data_formats
+CODE-007,programming,Which Git command displays the working-tree and staging-area status?,git status.,exact_match,hard,,,1.0.0,git
+CODE-008,programming,What does JSON stand for?,JavaScript Object Notation.,exact_match,hard,,,1.0.0,data_formats
 CODE-009,programming,"In Python, what is the result of 7 // 2?",3.,numeric_tolerance,easy,,,1.0.0,python;operators
-CODE-010,programming,What is the main purpose of an API?,An API defines a way for software components to communicate through specified interfaces.,semantic_similarity,medium,,,1.0.0,software_engineering
+CODE-010,programming,What is the main purpose of an API?,An API defines a way for software components to communicate through specified interfaces.,semantic_similarity,hard,,,1.0.0,software_engineering
 SUM-001,summarization,Summarize this in one sentence: 'The library extended its weekday hours from 8 a.m.–6 p.m. to 8 a.m.–8 p.m. after students requested more evening study time. Weekend hours did not change.',"The library extended weekday closing time to 8 p.m. to provide more evening study time, while weekend hours stayed the same.",semantic_similarity,medium,The library extended its weekday hours from 8 a.m.–6 p.m. to 8 a.m.–8 p.m. after students requested more evening study time. Weekend hours did not change.,,1.0.0,summarization;grounded
 SUM-002,summarization,Summarize in one sentence: 'A software team released version 2.1 on Tuesday. It fixes a login bug and improves startup time. The release does not add new user-facing features.',Version 2.1 fixes a login bug and improves startup time without adding user-facing features.,semantic_similarity,medium,A software team released version 2.1 on Tuesday. It fixes a login bug and improves startup time. The release does not add new user-facing features.,,1.0.0,summarization;grounded
 SUM-003,summarization,"Summarize in one sentence: 'The survey included 240 respondents. Sixty percent preferred email updates, 25% preferred SMS, and 15% preferred phone calls.'","Among 240 respondents, 60% preferred email updates, 25% SMS, and 15% phone calls.",semantic_similarity,medium,"The survey included 240 respondents. Sixty percent preferred email updates, 25% preferred SMS, and 15% preferred phone calls.",,1.0.0,summarization;numbers
@@ -36,9 +36,9 @@ SUM-004,summarization,"Summarize in one sentence: 'The pilot ran for four weeks 
 SUM-005,summarization,"Summarize in one sentence: 'The proposal requests 50,000 AED for equipment and 10,000 AED for training. Approval is pending, and no spending has started.'","The proposal requests 60,000 AED in total for equipment and training, but approval is pending and spending has not begun.",semantic_similarity,medium,"The proposal requests 50,000 AED for equipment and 10,000 AED for training. Approval is pending, and no spending has started.",,1.0.0,summarization;arithmetic
 REAS-001,reasoning,A server has 100 GB free. A backup uses 18 GB and a log archive uses 7 GB. How much free space remains?,75 GB.,numeric_tolerance,easy,,,1.0.0,arithmetic;reasoning
 REAS-002,reasoning,All Zorbs are blue. Some blue objects are metal. Can we conclude that some Zorbs are metal?,No. The premises do not establish that any Zorbs are among the blue metal objects.,semantic_similarity,medium,,,1.0.0,logic
-REAS-003,reasoning,"A task depends on A and B. A is complete, but B is not. Is the task ready to start if both dependencies are required?",No. Dependency B is still incomplete.,semantic_similarity,easy,,,1.0.0,logic;dependencies
-REAS-004,reasoning,"A train departs every 20 minutes starting at 09:00, with departures at 09:00, 09:20, and so on. What is the first departure after 10:00?",10:20.,exact_match,medium,,,1.0.0,time;patterns
-REAS-005,reasoning,A dataset has 80 rows. Ten rows fail validation and are removed. What percentage of the original rows remain?,87.5%.,numeric_tolerance,medium,,,1.0.0,percentages;data
+REAS-003,reasoning,"A task depends on A and B. A is complete, but B is not. Is the task ready to start if both dependencies are required?",No. Dependency B is still incomplete.,semantic_similarity,hard,,,1.0.0,logic;dependencies
+REAS-004,reasoning,"A train departs every 20 minutes starting at 09:00, with departures at 09:00, 09:20, and so on. What is the first departure after 10:00?",10:20.,exact_match,hard,,,1.0.0,time;patterns
+REAS-005,reasoning,A dataset has 80 rows. Ten rows fail validation and are removed. What percentage of the original rows remain?,87.5%.,numeric_tolerance,hard,,,1.0.0,percentages;data
 SAFE-001,instruction_following,Answer using exactly two bullet points: name one benefit and one limitation of caching.,"- Benefit: Caching can reduce repeated computation and response time.
 - Limitation: Cached data can become stale.",semantic_similarity,medium,,,1.0.0,formatting;instruction_following
 SAFE-002,instruction_following,Reply with only the word READY in uppercase.,READY,exact_match,easy,,,1.0.0,formatting
@@ -47,8 +47,8 @@ SAFE-004,instruction_following,"List exactly three common HTTP methods, separate
 DATA-001,data_interpretation,"A table reports sales of 12 units on Monday, 18 on Tuesday, and 15 on Wednesday. What is the total?",45 units.,numeric_tolerance,easy,Monday: 12 units; Tuesday: 18 units; Wednesday: 15 units.,,1.0.0,data;arithmetic
 DATA-002,data_interpretation,"A service had 1,000 requests and 40 failed requests. What was the failure rate as a percentage?",4%.,numeric_tolerance,easy,Total requests: 1000. Failed requests: 40.,,1.0.0,data;percentages
 DATA-003,data_interpretation,"The median of 2, 4, 9, 10, and 15 is what value?",9.,numeric_tolerance,easy,,,1.0.0,statistics
-DATA-004,data_interpretation,Model A answered 45 of 50 tests correctly. What is its accuracy percentage?,90%.,numeric_tolerance,easy,,,1.0.0,metrics;accuracy
-DATA-005,data_interpretation,"Model B's latency measurements are 100 ms, 120 ms, and 140 ms. What is the mean latency?",120 ms.,numeric_tolerance,easy,,,1.0.0,metrics;latency
+DATA-004,data_interpretation,Model A answered 45 of 50 tests correctly. What is its accuracy percentage?,90%.,numeric_tolerance,hard,,,1.0.0,metrics;accuracy
+DATA-005,data_interpretation,"Model B's latency measurements are 100 ms, 120 ms, and 140 ms. What is the mean latency?",120 ms.,numeric_tolerance,hard,,,1.0.0,metrics;latency
 NLP-001,nlp,"Are the statements 'The meeting was postponed until Friday' and 'The meeting will take place later, on Friday' broadly consistent in meaning? Answer yes or no and briefly explain.",Yes. Both indicate that the meeting was moved to Friday.,semantic_similarity,easy,,,1.0.0,semantics
 NLP-002,nlp,Does 'The device is not waterproof' mean the same as 'The device is waterproof'?,No. They express opposite claims.,semantic_similarity,easy,,,1.0.0,negation
 NLP-003,nlp,"Identify the sentiment of: 'The interface is clear, fast, and easy to navigate.'",Positive.,exact_match,easy,,,1.0.0,sentiment
@@ -59,7 +59,7 @@ UNC-002,uncertainty,The supplied reference text does not mention a company's rev
 UNC-003,uncertainty,Two sources give conflicting dates and no source is designated as authoritative. What is the safest response?,Point out the conflict and ask for clarification or identify that the available sources disagree.,semantic_similarity,medium,,,1.0.0,conflicting_evidence
 MATH-011,math_reasoning,A 120 AED bill is split equally among 5 people. How much does each person pay?,24 AED.,numeric_tolerance,easy,,,1.0.0,arithmetic;shared_expenses
 MATH-012,math_reasoning,A model processes 240 records in 6 minutes at a constant rate. How many records per minute is that?,40 records per minute.,numeric_tolerance,easy,,,1.0.0,rates
-CODE-011,programming,What does a Python dictionary store?,Key-value pairs.,semantic_similarity,easy,,,1.0.0,python;data_structures
+CODE-011,programming,What does a Python dictionary store?,Key-value pairs.,semantic_similarity,hard,,,1.0.0,python;data_structures
 CODE-012,programming,Why should API keys be stored in environment variables rather than hardcoded in source code?,Environment variables keep secrets out of source code and reduce the risk of accidentally committing them to version control.,semantic_similarity,medium,,,1.0.0,security
 STAT-001,statistics,"If a 95% confidence interval for a metric is [0.72, 0.80], what is its interval width?",0.08.,numeric_tolerance,medium,,,1.0.0,statistics;confidence_interval
 STAT-002,statistics,"If two models are evaluated on different test sets, why is a direct paired comparison inappropriate?",A paired comparison requires matched observations for the same cases; different test sets do not provide those pairs.,semantic_similarity,medium,,,1.0.0,statistics;experimental_design

@@ -26,13 +26,19 @@ from backend.evaluation.datasets import DatasetValidationError, load_dataset
 from backend.evaluation.judge import build_configured_judge
 from backend.evaluation.run_schemas import (
     CaseResultResponse,
+    CustomModelCreateRequest,
+    CustomModelResponse,
+    CustomModelTestRequest,
+    CustomModelTestResponse,
     RunCreateRequest,
     RunDetailResponse,
     RunSummary,
 )
 from backend.evaluation.runner import execute_run
-from backend.models import BenchmarkRun, RunAnalysis
+from backend.models import BenchmarkRun, CustomModel, RunAnalysis
 from backend.providers import create_configured_providers
+from backend.providers.factory import create_custom_provider
+from backend.providers.models import GenerationRequest
 
 DATASETS_DIR = Path(__file__).resolve().parents[1] / "datasets"
 logger = logging.getLogger(__name__)
@@ -102,16 +108,129 @@ def readiness_check() -> dict[str, object]:
 
 
 @app.get("/api/config/providers")
-def provider_status() -> dict[str, object]:
+def provider_status(db: Session = Depends(get_db)) -> dict[str, object]:
+    custom_models = db.scalars(select(CustomModel).where(CustomModel.is_active)).all()
     return {
         "providers": {
-            "gemini": {"configured": bool(settings.gemini_api_key)},
-            "openrouter": {"configured": bool(settings.openrouter_api_key)},
+            "gemini": {
+                "name": "Google Gemini",
+                "configured": bool(settings.gemini_api_key),
+                "default_model": settings.gemini_model_id,
+                "available_models": ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro"],
+            },
+            "groq": {
+                "name": "Groq Cloud (Free Tier)",
+                "configured": bool(settings.groq_api_key),
+                "default_model": settings.groq_model_id,
+                "available_models": [
+                    "llama-3.3-70b-versatile",
+                    "llama-3.1-8b-instant",
+                    "deepseek-r1-distill-llama-70b",
+                    "gemma2-9b-it",
+                ],
+            },
+            "minimax": {
+                "name": "KiraAI MiniMax",
+                "configured": bool(settings.minimax_api_key),
+                "default_model": settings.minimax_model_id,
+                "available_models": [settings.minimax_model_id],
+            },
         },
+        "custom_models": [
+            {
+                "id": m.id,
+                "name": m.name,
+                "model_id": m.model_id,
+                "base_url": m.base_url,
+                "has_api_key": bool(m.api_key),
+            }
+            for m in custom_models
+        ],
         "judge_enabled": settings.judge_enabled,
         "judge_provider": settings.judge_provider,
         "environment": settings.environment,
     }
+
+
+@app.get("/api/custom-models", response_model=list[CustomModelResponse])
+def list_custom_models(db: Session = Depends(get_db)) -> list[CustomModelResponse]:
+    models = db.scalars(select(CustomModel).order_by(CustomModel.created_at.desc())).all()
+    return [
+        CustomModelResponse(
+            id=m.id,
+            name=m.name,
+            model_id=m.model_id,
+            base_url=m.base_url,
+            has_api_key=bool(m.api_key),
+            description=m.description,
+            created_at=m.created_at.isoformat(),
+            is_active=m.is_active,
+        )
+        for m in models
+    ]
+
+
+@app.post("/api/custom-models", response_model=CustomModelResponse, status_code=201)
+def create_custom_model(
+    payload: CustomModelCreateRequest,
+    db: Session = Depends(get_db),
+) -> CustomModelResponse:
+    custom_model = CustomModel(
+        id=str(uuid.uuid4()),
+        name=payload.name.strip(),
+        model_id=payload.model_id.strip(),
+        base_url=payload.base_url.strip(),
+        api_key=payload.api_key.strip() if payload.api_key else None,
+        description=payload.description.strip() if payload.description else None,
+        created_at=datetime.now(timezone.utc),
+        is_active=True,
+    )
+    db.add(custom_model)
+    db.commit()
+    db.refresh(custom_model)
+    return CustomModelResponse(
+        id=custom_model.id,
+        name=custom_model.name,
+        model_id=custom_model.model_id,
+        base_url=custom_model.base_url,
+        has_api_key=bool(custom_model.api_key),
+        description=custom_model.description,
+        created_at=custom_model.created_at.isoformat(),
+        is_active=custom_model.is_active,
+    )
+
+
+@app.delete("/api/custom-models/{model_id}")
+def delete_custom_model(model_id: str, db: Session = Depends(get_db)) -> dict[str, str]:
+    record = db.scalar(select(CustomModel).where(CustomModel.id == model_id))
+    if not record:
+        raise HTTPException(status_code=404, detail="Custom model not found.")
+    db.delete(record)
+    db.commit()
+    return {"status": "deleted", "id": model_id}
+
+
+@app.post("/api/custom-models/test", response_model=CustomModelTestResponse)
+async def test_custom_model(payload: CustomModelTestRequest) -> CustomModelTestResponse:
+    provider = create_custom_provider(
+        base_url=payload.base_url,
+        api_key=payload.api_key or "",
+        default_model_id=payload.model_id,
+        name="test_probe",
+    )
+    try:
+        response = await provider.generate(GenerationRequest(prompt=payload.prompt))
+        return CustomModelTestResponse(
+            success=True,
+            latency_ms=response.latency_ms,
+            reply=response.text[:200],
+        )
+    except Exception as exc:
+        return CustomModelTestResponse(
+            success=False,
+            latency_ms=0.0,
+            error=str(exc),
+        )
 
 
 @app.get("/api/datasets")
@@ -138,6 +257,25 @@ def list_datasets() -> list[dict[str, object]]:
             }
         )
     return available
+
+
+@app.get("/api/datasets/{dataset_file}/cases")
+def get_dataset_cases(dataset_file: str) -> dict[str, object]:
+    dataset_path = DATASETS_DIR / dataset_file
+    if not dataset_path.is_file():
+        raise HTTPException(status_code=404, detail="Dataset file was not found.")
+    try:
+        dataset = load_dataset(dataset_path)
+    except DatasetValidationError as exc:
+        raise HTTPException(status_code=400, detail=f"Invalid dataset: {exc}") from exc
+    return {
+        "dataset_file": dataset_file,
+        "dataset_name": dataset.dataset_name,
+        "dataset_version": dataset.dataset_version,
+        "sha256": dataset.source_sha256,
+        "total_cases": len(dataset.cases),
+        "cases": [case.model_dump(mode="json") for case in dataset.cases],
+    }
 
 
 @app.get("/api/overview")
@@ -203,17 +341,46 @@ async def create_run(
     except DatasetValidationError as exc:
         raise HTTPException(status_code=400, detail=f"Invalid dataset: {exc}") from exc
 
-    providers = create_configured_providers()
-    provider = providers.get(request.provider)
+    configured_providers = create_configured_providers()
+    provider = configured_providers.get(request.provider)
+    model_id = request.model_id
+
     if provider is None:
-        raise HTTPException(
-            status_code=422,
-            detail=f"Provider '{request.provider}' has no configured credentials.",
+        # Check custom models from database
+        custom_record = db.scalar(
+            select(CustomModel).where(
+                (CustomModel.id == request.provider)
+                | (CustomModel.name == request.provider)
+                | (CustomModel.model_id == request.provider)
+            )
         )
-    default_model_id = (
-        settings.gemini_model_id if request.provider == "gemini" else settings.openrouter_model_id
-    )
-    model_id = request.model_id or default_model_id
+        if custom_record:
+            provider = create_custom_provider(
+                base_url=custom_record.base_url,
+                api_key=custom_record.api_key or "",
+                default_model_id=custom_record.model_id,
+                name=custom_record.name,
+            )
+            model_id = model_id or custom_record.model_id
+        else:
+            raise HTTPException(
+                status_code=422,
+                detail=(
+                    f"Provider '{request.provider}' has no configured credentials "
+                    "or registered model."
+                ),
+            )
+
+    if not model_id:
+        if request.provider == "gemini":
+            model_id = settings.gemini_model_id
+        elif request.provider == "groq":
+            model_id = settings.groq_model_id
+        elif request.provider == "minimax":
+            model_id = settings.minimax_model_id
+        else:
+            model_id = "default"
+
     judge = None
     if request.include_judge:
         try:

@@ -90,3 +90,18 @@ class RunAnalysis(Base):
     result: Mapped[dict] = mapped_column(JSON, nullable=False)
 
     __table_args__ = (Index("ix_run_analyses_created_at", "created_at"),)
+
+
+class CustomModel(Base):
+    __tablename__ = "custom_models"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    model_id: Mapped[str] = mapped_column(String(255), nullable=False)
+    base_url: Mapped[str] = mapped_column(String(500), nullable=False)
+    api_key: Mapped[str | None] = mapped_column(String(500))
+    description: Mapped[str | None] = mapped_column(String(500))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    is_active: Mapped[bool] = mapped_column(default=True, nullable=False)
+
+    __table_args__ = (Index("ix_custom_models_created_at", "created_at"),)

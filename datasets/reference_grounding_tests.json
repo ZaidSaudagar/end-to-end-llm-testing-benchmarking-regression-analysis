@@ -1,5 +1,5 @@
 {
-  "dataset_name": "EvalForge Reference Grounding Tests",
+  "dataset_name": "Reference Grounding Benchmark Tests",
   "dataset_version": "1.0.0",
   "description": "Cases assess whether a response stays within supplied reference material and acknowledges missing information. They are project-specific starter cases.",
   "cases": [
@@ -7,7 +7,7 @@
       "test_case_id": "GRD-001",
       "task_category": "reference_grounding",
       "input_prompt": "What are the library's weekday closing and weekend hours?",
-      "reference_context": "The library extended its weekday hours from 8 a.m.–6 p.m. to 8 a.m.–8 p.m. after students requested more evening study time. Weekend hours did not change.",
+      "reference_context": "The library extended its weekday hours from 8 a.m.\u20136 p.m. to 8 a.m.\u20138 p.m. after students requested more evening study time. Weekend hours did not change.",
       "reference_answer": "The library opens at 8 a.m. and closes at 8 p.m. on weekdays. Weekend hours are not specified as changed.",
       "expected_behavior": "The library extended weekday closing time to 8 p.m. Weekend hours did not change.",
       "evaluation_method": "reference_supported_answer",
@@ -221,7 +221,7 @@
       "reference_answer": "The reference does not specify a warranty duration.",
       "expected_behavior": "No warranty duration is given.",
       "evaluation_method": "reference_supported_answer",
-      "difficulty": "medium",
+      "difficulty": "hard",
       "dataset_version": "1.0.0",
       "tags": [
         "grounding",
@@ -236,7 +236,7 @@
       "reference_answer": "15% of respondents preferred phone calls.",
       "expected_behavior": "15% preferred phone calls.",
       "evaluation_method": "reference_supported_answer",
-      "difficulty": "medium",
+      "difficulty": "hard",
       "dataset_version": "1.0.0",
       "tags": [
         "grounding",
@@ -251,7 +251,7 @@
       "reference_answer": "Northwind Labs published the report on 12 March 2025.",
       "expected_behavior": "Northwind Labs published it on 12 March 2025.",
       "evaluation_method": "reference_supported_answer",
-      "difficulty": "medium",
+      "difficulty": "hard",
       "dataset_version": "1.0.0",
       "tags": [
         "grounding",
@@ -266,7 +266,7 @@
       "reference_answer": "The reference provides no customer-satisfaction measurements.",
       "expected_behavior": "No conclusion about customer satisfaction can be drawn from the reference.",
       "evaluation_method": "reference_supported_answer",
-      "difficulty": "medium",
+      "difficulty": "hard",
       "dataset_version": "1.0.0",
       "tags": [
         "grounding",
@@ -281,7 +281,7 @@
       "reference_answer": "50,000 AED is requested for equipment and 10,000 AED for training, totaling 60,000 AED.",
       "expected_behavior": "Equipment: 50,000 AED; training: 10,000 AED; total: 60,000 AED.",
       "evaluation_method": "reference_supported_answer",
-      "difficulty": "medium",
+      "difficulty": "hard",
       "dataset_version": "1.0.0",
       "tags": [
         "grounding",
@@ -296,7 +296,7 @@
       "reference_answer": "The reference does not identify an owner.",
       "expected_behavior": "No team owner is identified in the reference.",
       "evaluation_method": "reference_supported_answer",
-      "difficulty": "medium",
+      "difficulty": "hard",
       "dataset_version": "1.0.0",
       "tags": [
         "grounding",

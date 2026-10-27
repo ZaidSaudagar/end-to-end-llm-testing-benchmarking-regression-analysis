@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -12,7 +11,7 @@ class RunCreateRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     dataset_file: str = Field(min_length=1, max_length=255)
-    provider: Literal["gemini", "openrouter"]
+    provider: str = Field(min_length=1, max_length=50)
     model_id: str | None = Field(default=None, min_length=1, max_length=255)
     include_judge: bool = False
 
@@ -25,6 +24,39 @@ class RunCreateRequest(BaseModel):
         if Path(value).suffix.lower() not in {".csv", ".json"}:
             raise ValueError("dataset_file must end in .csv or .json")
         return value
+
+
+class CustomModelCreateRequest(BaseModel):
+    name: str = Field(min_length=1, max_length=255)
+    model_id: str = Field(min_length=1, max_length=255)
+    base_url: str = Field(min_length=1, max_length=500)
+    api_key: str | None = Field(default=None, max_length=500)
+    description: str | None = Field(default=None, max_length=500)
+
+
+class CustomModelResponse(BaseModel):
+    id: str
+    name: str
+    model_id: str
+    base_url: str
+    has_api_key: bool
+    description: str | None = None
+    created_at: str
+    is_active: bool
+
+
+class CustomModelTestRequest(BaseModel):
+    base_url: str = Field(min_length=1, max_length=500)
+    model_id: str = Field(min_length=1, max_length=255)
+    api_key: str | None = Field(default=None, max_length=500)
+    prompt: str = Field(default="Say 'OK' to confirm connectivity.", max_length=500)
+
+
+class CustomModelTestResponse(BaseModel):
+    success: bool
+    latency_ms: float
+    reply: str | None = None
+    error: str | None = None
 
 
 class RunSummary(BaseModel):

@@ -246,7 +246,7 @@ def test_run_api_creates_and_reads_persisted_run(tmp_path, monkeypatch) -> None:
     monkeypatch.setattr(
         main,
         "create_configured_providers",
-        lambda: {"openrouter": MockProvider("answer")},
+        lambda: {"minimax": MockProvider("answer")},
     )
 
     def override_get_db():
@@ -260,7 +260,7 @@ def test_run_api_creates_and_reads_persisted_run(tmp_path, monkeypatch) -> None:
         with TestClient(main.app) as client:
             created = client.post(
                 "/api/runs",
-                json={"dataset_file": "one_case.csv", "provider": "openrouter"},
+                json={"dataset_file": "one_case.csv", "provider": "minimax"},
             )
             assert created.status_code == 201, created.text
             summary = created.json()
@@ -272,7 +272,7 @@ def test_run_api_creates_and_reads_persisted_run(tmp_path, monkeypatch) -> None:
             assert client.get("/api/runs").json()[0]["id"] == summary["id"]
             unsafe = client.post(
                 "/api/runs",
-                json={"dataset_file": "../one_case.csv", "provider": "openrouter"},
+                json={"dataset_file": "../one_case.csv", "provider": "minimax"},
             )
             assert unsafe.status_code == 422
     finally:

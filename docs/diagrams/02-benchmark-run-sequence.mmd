@@ -1,0 +1,47 @@
+sequenceDiagram
+    autonumber
+    actor User
+    participant UI as React SPA
+    participant API as FastAPI
+    participant DS as datasets.py
+    participant RUN as runner.py
+    participant PROV as Provider
+    participant MET as metrics.py
+    participant SEM as semantic.py
+    participant JUD as judge.py
+    participant DB as SQLite
+
+    User->>UI: Select dataset, provider, model
+    UI->>API: POST /api/runs
+    API->>DS: load_dataset(dataset_file)
+    DS->>DS: compute SHA-256
+    DS-->>API: cases + sha256 + version
+    API->>DB: INSERT benchmark_runs (status=running)
+    API-->>UI: RunSummary (202-style acknowledgement)
+
+    loop For each test case
+        API->>PROV: generate(prompt)
+        alt Provider succeeds
+            PROV-->>API: candidate text + tokens + latency
+            API->>MET: evaluate_case(method, candidate, reference)
+            MET-->>API: deterministic result
+            opt Semantic scoring enabled
+                API->>SEM: similarity(candidate, reference)
+                SEM-->>API: cosine similarity
+            end
+            opt Judge enabled
+                API->>JUD: score(case, candidate)
+                JUD-->>API: 5-dimension scorecard
+            end
+        else Provider fails
+            PROV-->>API: ProviderError (sanitized)
+            API->>API: record error_category + message
+        end
+        API->>DB: INSERT benchmark_case_results
+        API->>DB: UPDATE run progress counters
+    end
+
+    API->>DB: UPDATE benchmark_runs (final status)
+    Note over API,DB: completed | partial_failure | failed
+    UI->>API: GET /api/runs (polled every 10s)
+    API-->>UI: RunSummary list

@@ -1,0 +1,25 @@
+flowchart TD
+    A["POST /api/analyses/compare<br/>baseline_run_id, candidate_run_id"] --> B{"Same dataset_sha256?"}
+    B -->|No| B1["400 — datasets differ"]
+    B -->|Yes| C{"Distinct run ids?"}
+    C -->|No| C1["400 — cannot compare a run with itself"]
+    C -->|Yes| D{"0 < alpha < 1 and<br/>minimum_regression_drop >= 0?"}
+    D -->|No| D1["422 — invalid parameters"]
+    D -->|Yes| E["Load case results for both runs"]
+
+    E --> F["_extract_metrics<br/>pair cases by test_case_id"]
+    F --> G["Metrics: deterministic_pass_rate,<br/>semantic_similarity, judge_overall,<br/>judge_relevance, judge_completeness,<br/>judge_instruction_following,<br/>judge_factual_alignment, judge_clarity"]
+
+    G --> H{"Metric is<br/>deterministic_pass_rate?"}
+    H -->|Yes| I["Exact McNemar test<br/>on discordant pairs"]
+    H -->|No| J["Paired Wilcoxon<br/>signed-rank test"]
+
+    I --> K["Paired percentile bootstrap CI<br/>10,000 resamples, SHA-256 seeded RNG"]
+    J --> K
+    K --> L["Holm-Bonferroni correction<br/>across all compared metrics"]
+    L --> M{"adjusted_p < alpha<br/>AND mean_delta < -minimum_regression_drop?"}
+    M -->|Yes| N["regression_detected = true"]
+    M -->|No| O["regression_detected = false"]
+    N --> P["Persist run_analyses row<br/>result JSON"]
+    O --> P
+    P --> Q["Return ComparisonResponse"]

@@ -18,3 +18,12 @@ reports/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Frontend
+node_modules/
+frontend/dist/
+frontend/node_modules/
+*.tsbuildinfo
+
+# Documentation build artifacts
+~$*.docx

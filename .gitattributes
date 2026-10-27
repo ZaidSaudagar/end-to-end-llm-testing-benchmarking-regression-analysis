@@ -1,0 +1,30 @@
+# Normalize line endings so the repository is consistent across Windows, macOS, and Linux.
+* text=auto eol=lf
+
+# Windows-only scripts keep CRLF.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Binary assets must never be line-ending converted.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg text
+*.docx binary
+*.pdf binary
+*.db binary
+*.sqlite3 binary
+
+# Lockfiles are generated; keep them out of diffs and language stats.
+package-lock.json -diff linguist-generated=true
+
+# Documentation and diagram sources are prose, not code.
+*.md text
+*.mmd text
+docs/** linguist-documentation
+
+# Mark the frontend as the primary language of the repository.
+frontend/src/** linguist-vendored=false

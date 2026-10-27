@@ -15,7 +15,7 @@ load_dotenv()
 BACKEND_URL = os.getenv("DASHBOARD_API_URL", "http://127.0.0.1:8000")
 
 st.set_page_config(
-    page_title="EvalForge | LLM Evaluation",
+    page_title="End to End LLM Testing Benchmarking and Regression Analysis",
     page_icon="🧪",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -171,8 +171,10 @@ def _render_analysis(result: dict[str, Any], *, widget_suffix: str) -> None:
     st.plotly_chart(figure, use_container_width=True)
 
 
-st.title("🧪 EvalForge")
-st.caption("Run reproducible model evaluations, inspect case-level outputs, and compare regressions.")
+st.title("🧪 End-to-End LLM Testing, Benchmarking & Regression Analysis")
+st.caption(
+    "Run reproducible model evaluations, inspect case-level outputs, and compare regressions."
+)
 
 with st.sidebar:
     st.markdown("### Workspace")
@@ -329,14 +331,19 @@ with compare_tab:
         if baseline["id"] == candidate["id"]:
             st.warning("Choose two different runs.")
         elif baseline["dataset_sha256"] != candidate["dataset_sha256"]:
-            st.warning("These runs use different dataset files. Select runs with the same fingerprint.")
+            st.warning(
+                "These runs use different dataset files. Select runs with the same fingerprint."
+            )
         else:
             minimum_drop = st.number_input(
                 "Minimum drop required to flag a regression",
                 min_value=0.0,
                 value=0.0,
                 step=0.01,
-                help="Uses each metric's native scale; for pass rate, 0.05 is five percentage points.",
+                help=(
+                    "Uses each metric's native scale; for pass rate, 0.05 is five "
+                    "percentage points."
+                ),
             )
             if st.button("Run paired comparison", type="primary"):
                 try:

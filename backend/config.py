@@ -21,17 +21,23 @@ class Settings:
     streamlit_port: int = int(os.getenv("STREAMLIT_PORT", "8501"))
     log_level: str = os.getenv("LOG_LEVEL", "INFO")
     gemini_api_key: str = os.getenv("GEMINI_API_KEY", "")
-    openrouter_api_key: str = os.getenv("OPENROUTER_API_KEY", "")
-    gemini_model_id: str = os.getenv("GEMINI_MODEL_ID", "gemini-3.8-flash")
-    openrouter_model_id: str = os.getenv("OPENROUTER_MODEL_ID", "openai/gpt-4o-mini")
+    minimax_api_key: str = os.getenv("MINIMAX_API_KEY", "")
+    minimax_base_url: str = os.getenv("MINIMAX_BASE_URL", "https://kiraai.vn/api/v1")
+    groq_api_key: str = os.getenv("GROQ_API_KEY", "")
+    groq_base_url: str = os.getenv("GROQ_BASE_URL", "https://api.groq.com/openai/v1")
+    gemini_model_id: str = os.getenv("GEMINI_MODEL_ID", "gemini-2.0-flash")
+    minimax_model_id: str = os.getenv(
+        "MINIMAX_MODEL_ID", os.getenv("MINIMAX_MODEL", "minimax-m3.1-flash-free")
+    )
+    groq_model_id: str = os.getenv("GROQ_MODEL_ID", "llama-3.3-70b-versatile")
     provider_timeout_seconds: float = float(os.getenv("PROVIDER_TIMEOUT_SECONDS", "30"))
     provider_max_attempts: int = int(os.getenv("PROVIDER_MAX_ATTEMPTS", "3"))
     provider_max_retry_delay_seconds: float = float(
         os.getenv("PROVIDER_MAX_RETRY_DELAY_SECONDS", "2")
     )
     judge_enabled: bool = os.getenv("JUDGE_ENABLED", "false").lower() == "true"
-    judge_provider: str = os.getenv("JUDGE_PROVIDER", "openrouter").strip().lower()
-    judge_model_id: str = os.getenv("JUDGE_MODEL_ID", "openai/gpt-4o-mini")
+    judge_provider: str = os.getenv("JUDGE_PROVIDER", "minimax").strip().lower()
+    judge_model_id: str = os.getenv("JUDGE_MODEL_ID", "minimax-m3.1-flash-free")
     judge_max_response_attempts: int = int(os.getenv("JUDGE_MAX_RESPONSE_ATTEMPTS", "2"))
     judge_repetitions: int = int(os.getenv("JUDGE_REPETITIONS", "1"))
     embedding_model_id: str = os.getenv(
@@ -43,7 +49,8 @@ class Settings:
     cors_origins: tuple[str, ...] = tuple(
         origin.strip()
         for origin in os.getenv(
-            "CORS_ORIGINS", "http://localhost:8501,http://127.0.0.1:8501"
+            "CORS_ORIGINS",
+            "http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000,http://localhost:8501,http://127.0.0.1:8501",
         ).split(",")
         if origin.strip()
     )

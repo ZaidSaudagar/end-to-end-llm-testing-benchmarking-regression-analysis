@@ -1,0 +1,36 @@
+flowchart LR
+    subgraph Tokens["Design tokens (index.css :root)"]
+        BG["Surfaces<br/>#0b0c0e · #121316 · #191b1f"]
+        BD["Borders<br/>subtle 9% · strong 16%"]
+        TX["Text<br/>#f2f3f5 · #a2a8b4 · #6f7683"]
+        AC["Single accent<br/>rose #f43f5e"]
+        RD["Radii 4 / 6 / 8 / 10<br/>Shadows none"]
+    end
+
+    subgraph Type["Typography"]
+        SANS["IBM Plex Sans 400-700<br/>body, headings, UI"]
+        MONO["IBM Plex Mono 400-600<br/>IDs, hashes, metrics"]
+    end
+
+    subgraph Chrome["Shared chrome"]
+        SHELL[".app-header · .app-nav-tab<br/>.app-main · .app-footer"]
+        VIEW[".view · .view-head<br/>.view-section"]
+        DATA[".data-table · .table-scroll<br/>.stat-strip · .row-list"]
+        FORM[".field-label · .field-hint<br/>.input-field · .segmented"]
+        FEED[".notice · .notice-error<br/>.badge"]
+        MODAL[".modal-backdrop · .modal-panel"]
+    end
+
+    subgraph Rules["Non-negotiable rules"]
+        R1["Rose means regression, nothing else"]
+        R2["No gradients, no glassmorphism"]
+        R3["Sentence case; no ALL-CAPS labels"]
+        R4["Focus-visible ring on every control"]
+        R5["prefers-reduced-motion respected"]
+    end
+
+    Tokens --> Chrome
+    Type --> Chrome
+    Chrome --> Rules
+
+    style AC fill:#f43f5e,color:#fff

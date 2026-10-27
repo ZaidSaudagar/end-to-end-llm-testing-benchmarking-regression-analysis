@@ -1,0 +1,71 @@
+erDiagram
+    BENCHMARK_RUNS ||--o{ BENCHMARK_CASE_RESULTS : "has"
+    BENCHMARK_RUNS ||--o{ RUN_ANALYSES : "baseline of"
+    BENCHMARK_RUNS ||--o{ RUN_ANALYSES : "candidate of"
+
+    BENCHMARK_RUNS {
+        string id PK "uuid4 hex"
+        string dataset_file
+        string dataset_name
+        string dataset_version
+        string dataset_sha256 "comparison guard"
+        string provider
+        string model_id
+        string status "running|completed|partial_failure|failed"
+        boolean judge_enabled
+        datetime started_at "indexed"
+        datetime completed_at
+        int total_cases
+        int completed_cases
+        int passed_cases
+        int errored_cases
+        int total_input_tokens
+        int total_output_tokens
+        float total_latency_ms
+        float total_estimated_cost_usd
+        text error_message
+    }
+
+    BENCHMARK_CASE_RESULTS {
+        int id PK
+        string run_id FK "ON DELETE CASCADE"
+        int ordinal
+        string test_case_id "unique with run_id"
+        string evaluation_method
+        string status "passed|failed|error"
+        text candidate_text
+        string provider
+        string model_id
+        int input_tokens
+        int output_tokens
+        float latency_ms
+        float estimated_cost_usd
+        json deterministic_result
+        json semantic_result
+        json judge_result
+        text evaluation_error
+        string error_category
+        text error_message
+    }
+
+    RUN_ANALYSES {
+        int id PK
+        string baseline_run_id FK
+        string candidate_run_id FK
+        string method_version
+        float alpha
+        float minimum_regression_drop
+        datetime created_at "indexed"
+        json result
+    }
+
+    CUSTOM_MODELS {
+        int id PK
+        string name
+        string model_id
+        string base_url
+        string api_key "never returned by API"
+        text description
+        datetime created_at "indexed"
+        boolean is_active
+    }
