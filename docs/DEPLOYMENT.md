@@ -10,7 +10,7 @@ Install Docker Engine and the Docker Compose plugin. In the project directory, c
 python -c "import secrets; print(secrets.token_urlsafe(32))"
 ```
 
-Set `ENVIRONMENT=production`, `DEBUG=false`, and the generated value as `BACKEND_API_KEY` in `.env`. For the Kira AI MiniMax endpoint, set `MINIMAX_API_KEY`, `MINIMAX_BASE_URL=https://kiraai.vn/api/v1`, and `MINIMAX_MODEL=minimax-m3.1-flash-free`. Gemini is also supported. Set explicit `CORS_ORIGINS` and `ALLOWED_HOSTS` appropriate for your deployment. Compose passes the backend key to the dashboard automatically. Keep `.env` private; it is excluded from Git and the container build context.
+Set `ENVIRONMENT=production`, `DEBUG=false`, and the generated value as `BACKEND_API_KEY` in `.env`. For the Kira AI MiniMax endpoint, set `MINIMAX_API_KEY`, `MINIMAX_BASE_URL=https://kiraai.vn/api/v1`, and `MINIMAX_MODEL=kira-3.5-flash`. Gemini is also supported. Set explicit `CORS_ORIGINS` and `ALLOWED_HOSTS` appropriate for your deployment. Compose passes the backend key to the dashboard automatically. Keep `.env` private; it is excluded from Git and the container build context.
 
 Start the release:
 

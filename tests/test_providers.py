@@ -292,6 +292,7 @@ def test_mock_provider_is_usable_without_credentials() -> None:
 def test_factory_returns_only_adapters_with_configured_credentials() -> None:
     config = Settings(
         gemini_api_key="gemini-secret",
+        groq_api_key="",
         minimax_api_key="",
         gemini_model_id="gemini-fixture",
         provider_timeout_seconds=7,

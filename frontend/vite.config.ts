@@ -7,6 +7,7 @@ const backendTarget = process.env.VITE_BACKEND_URL ?? 'http://127.0.0.1:8000'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  base: './',
   server: {
     port: 5173,
     proxy: {

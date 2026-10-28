@@ -25,11 +25,11 @@ class Settings:
     minimax_base_url: str = os.getenv("MINIMAX_BASE_URL", "https://kiraai.vn/api/v1")
     groq_api_key: str = os.getenv("GROQ_API_KEY", "")
     groq_base_url: str = os.getenv("GROQ_BASE_URL", "https://api.groq.com/openai/v1")
-    gemini_model_id: str = os.getenv("GEMINI_MODEL_ID", "gemini-2.0-flash")
+    gemini_model_id: str = os.getenv("GEMINI_MODEL_ID", "gemini-3.8-flash")
     minimax_model_id: str = os.getenv(
-        "MINIMAX_MODEL_ID", os.getenv("MINIMAX_MODEL", "minimax-m3.1-flash-free")
+        "MINIMAX_MODEL_ID", os.getenv("MINIMAX_MODEL", "kira-3.5-flash")
     )
-    groq_model_id: str = os.getenv("GROQ_MODEL_ID", "llama-3.3-70b-versatile")
+    groq_model_id: str = os.getenv("GROQ_MODEL_ID", "qwen/qwen3.8-27b")
     provider_timeout_seconds: float = float(os.getenv("PROVIDER_TIMEOUT_SECONDS", "30"))
     provider_max_attempts: int = int(os.getenv("PROVIDER_MAX_ATTEMPTS", "3"))
     provider_max_retry_delay_seconds: float = float(
@@ -37,7 +37,7 @@ class Settings:
     )
     judge_enabled: bool = os.getenv("JUDGE_ENABLED", "false").lower() == "true"
     judge_provider: str = os.getenv("JUDGE_PROVIDER", "minimax").strip().lower()
-    judge_model_id: str = os.getenv("JUDGE_MODEL_ID", "minimax-m3.1-flash-free")
+    judge_model_id: str = os.getenv("JUDGE_MODEL_ID", "kira-3.5-flash")
     judge_max_response_attempts: int = int(os.getenv("JUDGE_MAX_RESPONSE_ATTEMPTS", "2"))
     judge_repetitions: int = int(os.getenv("JUDGE_REPETITIONS", "1"))
     embedding_model_id: str = os.getenv(

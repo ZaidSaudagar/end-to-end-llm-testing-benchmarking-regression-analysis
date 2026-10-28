@@ -154,7 +154,7 @@ Automated unit tests use a fake encoder and do not download model weights. To ru
 
 ## Model providers
 
-Provider requests are asynchronous and can be called from Python. `GeminiProvider` uses Google's `generateContent` REST method; `MiniMaxProvider` uses the OpenAI-compatible chat completion API. MiniMax settings are `MINIMAX_API_KEY`, `MINIMAX_BASE_URL`, and `MINIMAX_MODEL` (or `MINIMAX_MODEL_ID`); the Kira AI endpoint and `minimax-m3.1-flash-free` model are configured in the local `.env`. The Gemini model ID can be changed with `GEMINI_MODEL_ID`; pass a request-level `model_id` to override one request. The factory returns adapters for configured credentials only.
+Provider requests are asynchronous and can be called from Python. `GeminiProvider` uses Google's `generateContent` REST method; `MiniMaxProvider` uses the OpenAI-compatible chat completion API. MiniMax settings are `MINIMAX_API_KEY`, `MINIMAX_BASE_URL`, and `MINIMAX_MODEL` (or `MINIMAX_MODEL_ID`); the Kira AI endpoint and `kira-3.5-flash` model are configured in the local `.env`. The Gemini model ID can be changed with `GEMINI_MODEL_ID`; pass a request-level `model_id` to override one request. The factory returns adapters for configured credentials only.
 
 The adapters apply bounded timeouts and retries for timeouts, transport failures, HTTP 408/429, and server errors. Retried generation requests can be received more than once by a provider. Authentication and other client errors are not retried. Errors are normalized without including API keys or provider response bodies. Token counts and latency are normalized; estimated cost remains `null` unless a model-specific `CostEstimator` is supplied, so the project does not invent pricing.
 

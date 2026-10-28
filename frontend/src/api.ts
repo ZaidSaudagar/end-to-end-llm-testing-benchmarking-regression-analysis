@@ -163,40 +163,50 @@ export interface AnalysisListItem {
   regressions_detected: number
 }
 
-const API_BASE = '/api'
+const rawBase = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/+$/, '')
+const API_BASE = rawBase ? `${rawBase}/api` : '/api'
+const API_KEY = (import.meta.env.VITE_BACKEND_API_KEY as string | undefined) || ''
+
+function requestHeaders(extra: Record<string, string> = {}): Record<string, string> {
+  const headers: Record<string, string> = { ...extra }
+  if (API_KEY) {
+    headers['X-API-Key'] = API_KEY
+  }
+  return headers
+}
 
 export async function fetchOverview(): Promise<OverviewResponse> {
-  const res = await fetch(`${API_BASE}/overview`)
+  const res = await fetch(`${API_BASE}/overview`, { headers: requestHeaders() })
   if (!res.ok) throw new Error(`Overview fetch failed: ${res.statusText}`)
   return res.json()
 }
 
 export async function fetchProviders(): Promise<ProviderConfigResponse> {
-  const res = await fetch(`${API_BASE}/config/providers`)
+  const res = await fetch(`${API_BASE}/config/providers`, { headers: requestHeaders() })
   if (!res.ok) throw new Error(`Providers fetch failed: ${res.statusText}`)
   return res.json()
 }
 
 export async function fetchDatasets(): Promise<DatasetItem[]> {
-  const res = await fetch(`${API_BASE}/datasets`)
+  const res = await fetch(`${API_BASE}/datasets`, { headers: requestHeaders() })
   if (!res.ok) throw new Error(`Datasets fetch failed: ${res.statusText}`)
   return res.json()
 }
 
 export async function fetchDatasetCases(file: string): Promise<DatasetCasesResponse> {
-  const res = await fetch(`${API_BASE}/datasets/${file}/cases`)
+  const res = await fetch(`${API_BASE}/datasets/${file}/cases`, { headers: requestHeaders() })
   if (!res.ok) throw new Error(`Dataset cases fetch failed: ${res.statusText}`)
   return res.json()
 }
 
 export async function fetchRuns(): Promise<RunSummary[]> {
-  const res = await fetch(`${API_BASE}/runs`)
+  const res = await fetch(`${API_BASE}/runs`, { headers: requestHeaders() })
   if (!res.ok) throw new Error(`Runs fetch failed: ${res.statusText}`)
   return res.json()
 }
 
 export async function fetchRun(id: string): Promise<RunDetail> {
-  const res = await fetch(`${API_BASE}/runs/${id}`)
+  const res = await fetch(`${API_BASE}/runs/${id}`, { headers: requestHeaders() })
   if (!res.ok) throw new Error(`Run detail fetch failed: ${res.statusText}`)
   return res.json()
 }
@@ -209,7 +219,7 @@ export async function createRun(payload: {
 }): Promise<RunSummary> {
   const res = await fetch(`${API_BASE}/runs`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: requestHeaders({ 'Content-Type': 'application/json' }),
     body: JSON.stringify(payload),
   })
   if (!res.ok) {
@@ -227,7 +237,7 @@ export async function compareRuns(payload: {
 }): Promise<ComparisonResponse> {
   const res = await fetch(`${API_BASE}/analyses/compare`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: requestHeaders({ 'Content-Type': 'application/json' }),
     body: JSON.stringify(payload),
   })
   if (!res.ok) {
@@ -238,19 +248,19 @@ export async function compareRuns(payload: {
 }
 
 export async function fetchAnalyses(): Promise<AnalysisListItem[]> {
-  const res = await fetch(`${API_BASE}/analyses`)
+  const res = await fetch(`${API_BASE}/analyses`, { headers: requestHeaders() })
   if (!res.ok) throw new Error(`Analyses fetch failed: ${res.statusText}`)
   return res.json()
 }
 
 export async function fetchAnalysis(id: string): Promise<ComparisonResponse> {
-  const res = await fetch(`${API_BASE}/analyses/${id}`)
+  const res = await fetch(`${API_BASE}/analyses/${id}`, { headers: requestHeaders() })
   if (!res.ok) throw new Error(`Analysis fetch failed: ${res.statusText}`)
   return res.json()
 }
 
 export async function fetchCustomModels(): Promise<CustomModelItem[]> {
-  const res = await fetch(`${API_BASE}/custom-models`)
+  const res = await fetch(`${API_BASE}/custom-models`, { headers: requestHeaders() })
   if (!res.ok) throw new Error(`Custom models fetch failed: ${res.statusText}`)
   return res.json()
 }
@@ -264,7 +274,7 @@ export async function createCustomModel(payload: {
 }): Promise<CustomModelItem> {
   const res = await fetch(`${API_BASE}/custom-models`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: requestHeaders({ 'Content-Type': 'application/json' }),
     body: JSON.stringify(payload),
   })
   if (!res.ok) {
@@ -277,6 +287,7 @@ export async function createCustomModel(payload: {
 export async function deleteCustomModel(id: string): Promise<void> {
   const res = await fetch(`${API_BASE}/custom-models/${id}`, {
     method: 'DELETE',
+    headers: requestHeaders(),
   })
   if (!res.ok) throw new Error(`Delete custom model failed`)
 }
@@ -289,7 +300,7 @@ export async function testCustomModel(payload: {
 }): Promise<{ success: boolean; latency_ms: number; reply?: string; error?: string }> {
   const res = await fetch(`${API_BASE}/custom-models/test`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: requestHeaders({ 'Content-Type': 'application/json' }),
     body: JSON.stringify(payload),
   })
   return res.json()

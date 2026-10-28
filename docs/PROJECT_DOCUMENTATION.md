@@ -407,7 +407,7 @@ The API never returns a stored `api_key`.
 {
   "dataset_file": "benchmark_dataset.csv",
   "provider": "minimax",
-  "model_id": "minimax-m3.1-flash-free",
+  "model_id": "kira-3.5-flash",
   "include_judge": false
 }
 ```

@@ -11,13 +11,13 @@ services:
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
       MINIMAX_API_KEY: ${MINIMAX_API_KEY:-}
       MINIMAX_BASE_URL: ${MINIMAX_BASE_URL:-https://kiraai.vn/api/v1}
-      MINIMAX_MODEL: ${MINIMAX_MODEL:-minimax-m3.1-flash-free}
+      MINIMAX_MODEL: ${MINIMAX_MODEL:-kira-3.5-flash}
       GROQ_API_KEY: ${GROQ_API_KEY:-}
-      GROQ_MODEL_ID: ${GROQ_MODEL_ID:-llama-3.3-70b-versatile}
-      GEMINI_MODEL_ID: ${GEMINI_MODEL_ID:-gemini-2.0-flash}
+      GROQ_MODEL_ID: ${GROQ_MODEL_ID:-qwen/qwen3.8-27b}
+      GEMINI_MODEL_ID: ${GEMINI_MODEL_ID:-gemini-3.8-flash}
       JUDGE_ENABLED: ${JUDGE_ENABLED:-false}
       JUDGE_PROVIDER: ${JUDGE_PROVIDER:-minimax}
-      JUDGE_MODEL_ID: ${JUDGE_MODEL_ID:-minimax-m3.1-flash-free}
+      JUDGE_MODEL_ID: ${JUDGE_MODEL_ID:-kira-3.5-flash}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173,http://localhost:8501,http://127.0.0.1:8501}
       ALLOWED_HOSTS: ${ALLOWED_HOSTS:-backend,localhost,127.0.0.1}
       HF_HOME: /models/huggingface

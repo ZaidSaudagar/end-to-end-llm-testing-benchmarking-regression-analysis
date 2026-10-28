@@ -116,17 +116,24 @@ def provider_status(db: Session = Depends(get_db)) -> dict[str, object]:
                 "name": "Google Gemini",
                 "configured": bool(settings.gemini_api_key),
                 "default_model": settings.gemini_model_id,
-                "available_models": ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro"],
+                "available_models": [
+                    "gemini-3.8-flash",
+                    "gemini-3.7-flash",
+                    "gemini-3.6-flash",
+                    "gemini-3.5-flash",
+                    "gemini-3.5-flash-lite",
+                    "gemini-flash-latest",
+                ],
             },
             "groq": {
                 "name": "Groq Cloud (Free Tier)",
                 "configured": bool(settings.groq_api_key),
                 "default_model": settings.groq_model_id,
                 "available_models": [
-                    "llama-3.3-70b-versatile",
-                    "llama-3.1-8b-instant",
-                    "deepseek-r1-distill-llama-70b",
-                    "gemma2-9b-it",
+                    "qwen/qwen3.8-27b",
+                    "openai/gpt-oss-120b",
+                    "openai/gpt-oss-20b",
+                    "allam-2-7b",
                 ],
             },
             "minimax": {
@@ -536,3 +543,22 @@ def get_run_analysis(
         "created_at": analysis.created_at.isoformat(),
         "result": analysis.result,
     }
+
+
+FRONTEND_DIST_DIR = Path(__file__).resolve().parents[1] / "frontend" / "dist"
+if FRONTEND_DIST_DIR.is_dir() and (FRONTEND_DIST_DIR / "index.html").is_file():
+    from fastapi.staticfiles import StaticFiles
+
+    app.mount("/", StaticFiles(directory=str(FRONTEND_DIST_DIR), html=True), name="frontend")
+else:
+
+    @app.get("/")
+    def root_info() -> dict[str, object]:
+        return {
+            "status": "ok",
+            "app": settings.app_name,
+            "version": "0.1.0",
+            "docs": "/docs" if not is_production else "disabled in production",
+            "health": "/health",
+        }
+
