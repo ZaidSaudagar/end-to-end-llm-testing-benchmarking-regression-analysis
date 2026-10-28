@@ -4,7 +4,7 @@ Start with the full technical documentation. Everything else here supports it.
 
 | Document | What it covers |
 |---|---|
-| [PROJECT_DOCUMENTATION.md](PROJECT_DOCUMENTATION.md) | **The main reference.** 20 chapters: architecture, modules, evaluation engine, provider layer, API reference, database schema, frontend, design system, datasets, configuration, setup, testing, security, limitations |
+| [PROJECT_DOCUMENTATION.md](PROJECT_DOCUMENTATION.md) | **The main reference.** 19 chapters: architecture, modules, evaluation engine, provider layer, API reference, database schema, frontend, design system, datasets, configuration, setup, testing, security, limitations |
 | [PROJECT_DOCUMENTATION.docx](PROJECT_DOCUMENTATION.docx) | The same document as a formatted Word file — 42 pages, 56 tables, embedded screenshots |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Condensed architecture overview across the seven platform layers |
 | [DEPLOYMENT.md](DEPLOYMENT.md) | Docker Compose release path, host preparation, public access, key rotation |

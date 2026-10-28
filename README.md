@@ -92,7 +92,6 @@ npm run dev
 │   ├── database.py       # SQLAlchemy setup
 │   ├── main.py           # FastAPI REST endpoints
 │   └── models.py         # Database ORM models
-├── dashboard/            # Legacy Streamlit client (retained for API parity)
 ├── datasets/             # Test cases (CSV/JSON) and manifest
 ├── docs/                 # Documentation, diagrams, and screenshots
 │   ├── README.md                   Index of everything in this folder
@@ -159,7 +158,6 @@ Provider requests are asynchronous and can be called from Python. `GeminiProvide
 The adapters apply bounded timeouts and retries for timeouts, transport failures, HTTP 408/429, and server errors. Retried generation requests can be received more than once by a provider. Authentication and other client errors are not retried. Errors are normalized without including API keys or provider response bodies. Token counts and latency are normalized; estimated cost remains `null` unless a model-specific `CostEstimator` is supplied, so the project does not invent pricing.
 
 All provider tests use `httpx.MockTransport` or `MockProvider`; they do not require API keys or send paid requests. The provider-backed run API is available in FastAPI and the dashboard can start and inspect runs.
-
 ## Evaluation runs
 
 Run creation uses only files inside `datasets/`; callers provide a filename rather than an arbitrary filesystem path. Each run stores the dataset name, version and SHA-256, provider/model, status, token counts, latency, and any available estimated cost. Each case stores the candidate text, normalized provider metadata, deterministic result, semantic similarity result, optional judge outcome, evaluation error, or sanitized provider failure category. Results are committed as cases finish so a later provider failure does not erase earlier progress. Cases marked `semantic_similarity` load the configured embedding model on first use; see the semantic scoring section. Generated responses are persisted in the local database, so use care with datasets that contain private or sensitive inputs.
@@ -207,15 +205,11 @@ Configure the backend address with `VITE_BACKEND_URL` when it is not `http://127
 
 The visual language follows one rule: **rose (`#f43f5e`) means regression, and nothing else.** Every other status is rendered in neutral greys and distinguished by its label rather than by colour. There are no gradients, no glassmorphism, and no shadows — depth comes from a one-step surface lift plus a hairline border. Typography is IBM Plex Sans for UI and IBM Plex Mono for identifiers and metric values, in sentence case throughout. A global `prefers-reduced-motion` block disables animation, and every interactive element has a visible `:focus-visible` ring. See [section 12 of the documentation](docs/PROJECT_DOCUMENTATION.md#12-design-system).
 
-### Legacy Streamlit dashboard
-
-`dashboard/app.py` is the original Streamlit interface over the same API. It is retained for parity and is useful as an independent client for verifying API behaviour, but it is not part of the redesigned interface. Run it with `.venv\Scripts\python.exe -m streamlit run dashboard/app.py`.
-
 ## Security and deployment
 
-For local development, API-key protection is optional. In production, set `ENVIRONMENT=production`, `DEBUG=false`, a `BACKEND_API_KEY` with at least 32 characters, explicit `CORS_ORIGINS`, and explicit `ALLOWED_HOSTS`. The dashboard client sends `DASHBOARD_API_KEY` as `X-API-Key`. Production disables interactive API documentation; `/ready` checks the database connection. Request bodies are limited to 1 MiB.
+For local development, API-key protection is optional. In production, set `ENVIRONMENT=production`, `DEBUG=false`, a `BACKEND_API_KEY` with at least 32 characters, explicit `CORS_ORIGINS`, and explicit `ALLOWED_HOSTS`. The frontend sends `VITE_BACKEND_API_KEY` as `X-API-Key` when it is set. Production disables interactive API documentation; `/ready` checks the database connection. Request bodies are limited to 1 MiB.
 
-Build and run the single-host Docker Compose deployment with persistent SQLite and model-cache volumes by following [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md). It binds ports to loopback by default, requires an API key, and runs the application as a non-root user. SQLite is a single-backend-instance deployment. Put a TLS reverse proxy with user authentication in front of the dashboard before enabling remote access; the backend API key does not authenticate dashboard users. CI builds the deployment image but does not publish or deploy it.
+Build and run the single-host Docker Compose deployment with persistent SQLite and model-cache volumes by following [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md). It binds the backend port to loopback by default, requires an API key, and runs the application as a non-root user. SQLite is a single-backend-instance deployment. Put a TLS reverse proxy with user authentication in front of the frontend before enabling remote access; the backend API key does not authenticate frontend users. CI builds the deployment image but does not publish or deploy it.
 
 ```bash
 curl -X POST http://127.0.0.1:8000/api/analyses/compare \

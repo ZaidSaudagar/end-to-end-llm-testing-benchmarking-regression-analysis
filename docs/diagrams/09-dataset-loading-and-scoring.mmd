@@ -1,6 +1,6 @@
 flowchart TD
     A["Dataset file in datasets/"] --> B{"Extension"}
-    B -->|".csv"| C["pandas.read_csv"]
+    B -->|".csv"| C["csv.DictReader"]
     B -->|".json"| D["json.load<br/>expects cases[] array"]
 
     C --> E["Normalize each row to a case dict"]

@@ -18,7 +18,7 @@ services:
       JUDGE_ENABLED: ${JUDGE_ENABLED:-false}
       JUDGE_PROVIDER: ${JUDGE_PROVIDER:-minimax}
       JUDGE_MODEL_ID: ${JUDGE_MODEL_ID:-kira-3.5-flash}
-      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173,http://localhost:8501,http://127.0.0.1:8501}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}
       ALLOWED_HOSTS: ${ALLOWED_HOSTS:-backend,localhost,127.0.0.1}
       HF_HOME: /models/huggingface
     volumes:
@@ -32,26 +32,6 @@ services:
       timeout: 5s
       retries: 3
       start_period: 30s
-    restart: unless-stopped
-
-  dashboard:
-    build: .
-    command: ["streamlit", "run", "dashboard/app.py", "--server.headless", "true", "--server.address", "0.0.0.0", "--server.port", "8501"]
-    environment:
-      ENVIRONMENT: production
-      DASHBOARD_API_URL: http://backend:8000
-      DASHBOARD_API_KEY: ${BACKEND_API_KEY:?Set BACKEND_API_KEY in .env}
-    depends_on:
-      backend:
-        condition: service_healthy
-    ports:
-      - "${DASHBOARD_BIND_ADDRESS:-127.0.0.1}:8501:8501"
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8501/_stcore/health', timeout=3)"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 15s
     restart: unless-stopped
 
 volumes:

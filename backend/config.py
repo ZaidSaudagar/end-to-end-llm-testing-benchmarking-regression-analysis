@@ -18,7 +18,6 @@ class Settings:
     backend_api_key: str = os.getenv("BACKEND_API_KEY", "")
     backend_host: str = os.getenv("BACKEND_HOST", "127.0.0.1")
     backend_port: int = int(os.getenv("BACKEND_PORT", "8000"))
-    streamlit_port: int = int(os.getenv("STREAMLIT_PORT", "8501"))
     log_level: str = os.getenv("LOG_LEVEL", "INFO")
     gemini_api_key: str = os.getenv("GEMINI_API_KEY", "")
     minimax_api_key: str = os.getenv("MINIMAX_API_KEY", "")
@@ -50,7 +49,7 @@ class Settings:
         origin.strip()
         for origin in os.getenv(
             "CORS_ORIGINS",
-            "http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000,http://localhost:8501,http://127.0.0.1:8501",
+            "http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000",
         ).split(",")
         if origin.strip()
     )

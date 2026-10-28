@@ -16,7 +16,6 @@ flowchart LR
     end
 
     subgraph Optional["Optional"]
-        STREAMLIT["Streamlit dashboard<br/>dashboard/app.py"]
         OLLAMA["Ollama / vLLM<br/>local OpenAI-compatible"]
     end
 
@@ -27,7 +26,6 @@ flowchart LR
     UV --> DBF
     VITE --> PROXY
     PROXY --> UV
-    STREAMLIT --> UV
     OLLAMA --> UV
 
     style UV fill:#191b1f,color:#f2f3f5

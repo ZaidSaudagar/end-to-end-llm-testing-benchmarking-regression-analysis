@@ -13,11 +13,10 @@ RUN groupadd --system app && useradd --system --gid app --home-dir /home/app app
 
 COPY pyproject.toml README.md ./
 COPY backend ./backend
-COPY dashboard ./dashboard
 COPY datasets ./datasets
 
 RUN python -m pip install --no-cache-dir .
 
 USER app
 
-EXPOSE 8000 8501
+EXPOSE 8000

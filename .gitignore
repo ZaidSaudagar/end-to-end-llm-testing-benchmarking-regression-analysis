@@ -25,5 +25,10 @@ frontend/dist/
 frontend/node_modules/
 *.tsbuildinfo
 
+# Python packaging
+*.egg-info/
+build/
+dist/
+
 # Documentation build artifacts
 ~$*.docx

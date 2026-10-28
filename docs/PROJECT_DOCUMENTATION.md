@@ -21,13 +21,12 @@ A self-hosted platform for running reproducible LLM benchmark suites, scoring ea
 11. [Frontend architecture](#11-frontend-architecture)
 12. [Design system](#12-design-system)
 13. [Datasets](#13-datasets)
-14. [Legacy Streamlit dashboard](#14-legacy-streamlit-dashboard)
-15. [Configuration](#15-configuration)
-16. [Setup and installation](#16-setup-and-installation)
-17. [Running the application](#17-running-the-application)
-18. [Testing](#18-testing)
-19. [Security model](#19-security-model)
-20. [Known limitations and future work](#20-known-limitations-and-future-work)
+14. [Configuration](#14-configuration)
+15. [Setup and installation](#15-setup-and-installation)
+16. [Running the application](#16-running-the-application)
+17. [Testing](#17-testing)
+18. [Security model](#18-security-model)
+19. [Known limitations and future work](#19-known-limitations-and-future-work)
 
 ---
 
@@ -37,13 +36,12 @@ This platform answers one question with statistical rigour: **did this model get
 
 Most LLM evaluation tooling reports a score. A score alone cannot tell you whether a change is real or noise, and it cannot tell you whether a drop is large enough to act on. This project closes that gap by pairing a benchmark runner with a paired statistical comparison engine.
 
-The system has three parts:
+The system has two parts:
 
 | Part | Role | Entry point |
 |---|---|---|
 | **Backend** | Runs benchmarks, scores cases, performs regression analysis, persists everything | `backend/main.py` |
 | **Frontend** | React SPA for launching runs, inspecting cases, and reading the regression matrix | `frontend/src/App.tsx` |
-| **Legacy dashboard** | Streamlit UI over the same API, retained for parity | `dashboard/app.py` |
 
 The core design commitments are:
 
@@ -128,10 +126,7 @@ The architecture is a straight line: the browser talks to FastAPI, FastAPI orche
 | scikit-learn | — | Cosine similarity |
 | sentence-transformers | — | Semantic similarity embeddings |
 | jsonschema | — | `json_schema_validation` evaluator |
-| pandas | — | CSV dataset loading |
 | python-dotenv | — | `.env` loading |
-| Streamlit | — | Legacy dashboard |
-| Plotly | — | Legacy dashboard charts |
 
 Dev extras: `pytest`, `pytest-cov`, `ruff` (line length 100, rules `E`, `F`, `I`).
 
@@ -194,8 +189,6 @@ The frontend has no state-management library, no CSS framework, and no component
 │   │       └── RunDetailModal.tsx        Per-case inspection dialog
 │   ├── vite.config.ts              Dev server and API proxy
 │   └── package.json
-├── dashboard/
-│   └── app.py                      Legacy Streamlit dashboard
 ├── datasets/
 │   ├── manifest.json               SHA-256 and byte size for every dataset
 │   ├── benchmark_dataset.csv       63 cases, 10 columns
@@ -713,21 +706,7 @@ All datasets are version `1.0.0`. The version is recorded on every run, and the 
 
 ---
 
-## 14. Legacy Streamlit dashboard
-
-`dashboard/app.py` is a Streamlit application that consumes the same FastAPI backend through `dashboard/api_client.py`. It predates the React frontend and is retained for parity.
-
-It is **not** part of the redesigned interface and was not modified. It remains functional and is useful as a second, independent client for verifying that the API behaves correctly — if the Streamlit dashboard and the React SPA disagree about a run, the bug is in the API, not in either client.
-
-To run it:
-
-```bash
-.venv\Scripts\python.exe -m streamlit run dashboard/app.py
-```
-
----
-
-## 15. Configuration
+## 14. Configuration
 
 Configuration is read from `.env` at the repository root. `.env.example` documents every variable.
 
@@ -749,7 +728,7 @@ A provider appears as configured only when its key is non-blank. Providers witho
 
 ---
 
-## 16. Setup and installation
+## 15. Setup and installation
 
 ### Prerequisites
 
@@ -785,7 +764,7 @@ Expected: 54 tests pass with 1 skipped, the build succeeds, and lint reports no 
 
 ---
 
-## 17. Running the application
+## 16. Running the application
 
 Two processes are needed.
 
@@ -821,7 +800,7 @@ docker compose up --build
 
 ---
 
-## 18. Testing
+## 17. Testing
 
 ### Backend
 
@@ -871,7 +850,7 @@ npm run build          # production build
 
 ---
 
-## 19. Security model
+## 18. Security model
 
 ### API key enforcement
 
@@ -908,7 +887,7 @@ When `ENVIRONMENT=production`:
 
 ---
 
-## 20. Known limitations and future work
+## 19. Known limitations and future work
 
 ### Limitations
 
