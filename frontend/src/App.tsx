@@ -113,9 +113,6 @@ export const App: React.FC = () => {
         onClose={() => setInspectRunId(null)}
       />
 
-      <footer className="app-footer">
-        End-to-End LLM Testing, Benchmarking and Regression Analysis · FastAPI backend, React frontend
-      </footer>
     </div>
   )
 }

@@ -1,7 +1,8 @@
-# Frontend — LLM Evaluation Dashboard
+# Frontend — End-to-End LLM Testing, Benchmarking and Regression Analysis
 
 React 19 + Vite 8 + TypeScript single-page app. It is the primary interface for the
-evaluation platform and talks to the FastAPI backend over a dev proxy.
+End-to-End LLM Testing, Benchmarking and Regression Analysis platform and talks to the
+FastAPI backend over a dev proxy.
 
 Full project documentation: [`../docs/PROJECT_DOCUMENTATION.md`](../docs/PROJECT_DOCUMENTATION.md).
 

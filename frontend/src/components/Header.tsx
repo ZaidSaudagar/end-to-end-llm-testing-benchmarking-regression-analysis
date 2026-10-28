@@ -32,7 +32,7 @@ export const Header: React.FC<HeaderProps> = ({
     <header className="app-header">
       <div className="app-header-inner">
         <div className="app-brand">
-          <h1>LLM Evaluation Platform</h1>
+          <h1>End-to-End LLM Testing, Benchmarking and Regression Analysis</h1>
           <p>
             Benchmark runs, statistical regression analysis, and dataset inspection against a
             self-hosted FastAPI backend.
